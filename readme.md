@@ -1,5 +1,7 @@
 #rest4js
 
+[![devDependency Status](https://david-dm.org/gedbac/rest4js/dev-status.svg)](https://david-dm.org/gedbac/rest4js#info=devDependencies)
+
 Stability: Under development
 
 ## CRUD
