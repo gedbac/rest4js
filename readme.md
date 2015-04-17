@@ -1,6 +1,7 @@
 #rest4js
 
 [![devDependency Status](https://david-dm.org/gedbac/rest4js/dev-status.svg)](https://david-dm.org/gedbac/rest4js#info=devDependencies)
+[![Build Status](https://secure.travis-ci.org/gedbac/rest4js.svg)](http://travis-ci.org/gedbac/rest4js)
 
 Stability: Under development
 
