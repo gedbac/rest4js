@@ -21,6 +21,7 @@
     "gulp-concat": "~2.5.2",
     "gulp-footer": "~1.0.5",
     "gulp-header": "~1.2.2",
+    "gulp-jshint": "^1.10.0",
     "gulp-preprocess": "~1.2.0",
     "gulp-tap": "~0.1.3"
   }

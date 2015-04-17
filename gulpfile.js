@@ -1,10 +1,13 @@
+'use strict';
+
 var pkg = require('./package.json'),
     gulp = require('gulp'),
   	clean = require('gulp-clean'),
     concat = require('gulp-concat'),
     header = require('gulp-header'),
     footer = require('gulp-footer'),
-    tap = require('gulp-tap');
+    tap = require('gulp-tap'),
+    jshint = require('gulp-jshint');
 
 var src = [
   './src/DataException.js',
@@ -28,6 +31,9 @@ gulp.task('clean', function() {
 
 gulp.task('concat', [ 'clean' ], function() {
   return gulp.src(src)
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
+    .pipe(jshint.reporter('fail'))
     .pipe(tap(function (file) {
       var src = file.contents.toString();
       var lines = src.split('\n');
