@@ -7,7 +7,9 @@ var pkg = require('./package.json'),
     header = require('gulp-header'),
     footer = require('gulp-footer'),
     tap = require('gulp-tap'),
-    jshint = require('gulp-jshint');
+    jshint = require('gulp-jshint'),
+    jscs = require('gulp-jscs'),
+    stylish = require('gulp-jscs-stylish');
 
 var src = [
   './src/DataException.js',
@@ -32,8 +34,9 @@ gulp.task('clean', function() {
 gulp.task('concat', [ 'clean' ], function() {
   return gulp.src(src)
     .pipe(jshint())
-    .pipe(jshint.reporter('default'))
-    .pipe(jshint.reporter('fail'))
+    .pipe(jscs())
+    .pipe(stylish.combineWithHintResults())
+    .pipe(jshint.reporter('jshint-stylish'))
     .pipe(tap(function (file) {
       var src = file.contents.toString();
       var lines = src.split('\n');
