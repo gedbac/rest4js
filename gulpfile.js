@@ -9,7 +9,9 @@ var pkg = require('./package.json'),
     tap = require('gulp-tap'),
     jshint = require('gulp-jshint'),
     jscs = require('gulp-jscs'),
-    stylish = require('gulp-jscs-stylish');
+    stylish = require('gulp-jscs-stylish'),
+    uglify = require('gulp-uglify'),
+    sourcemaps = require('gulp-sourcemaps');
 
 var src = [
   './src/DataException.js',
@@ -60,6 +62,12 @@ gulp.task('concat', [ 'clean' ], function() {
       "  }\r\n\r\n"
     ].join('\r\n'), { pkg : pkg }))
     .pipe(footer('\r\n\r\n} (window.rest));'))
+    .pipe(sourcemaps.init())
+      .pipe(uglify({
+        mangle: false,
+        compress: false
+      }))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./'));
 });
 
