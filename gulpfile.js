@@ -11,7 +11,8 @@ var pkg = require('./package.json'),
     jscs = require('gulp-jscs'),
     stylish = require('gulp-jscs-stylish'),
     uglify = require('gulp-uglify'),
-    sourcemaps = require('gulp-sourcemaps');
+    sourcemaps = require('gulp-sourcemaps'),
+    jasmine = require('gulp-jasmine');
 
 var src = [
   './src/DataException.js',
@@ -71,4 +72,11 @@ gulp.task('concat', [ 'clean' ], function() {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('default', [ 'concat' ]);
+gulp.task('test', [ 'concat' ], function () {
+  return gulp.src('./spec/**/*.spec.js')
+    .pipe(jasmine({
+      verbose: true
+    }));
+});
+
+gulp.task('default', [ 'test' ]);
