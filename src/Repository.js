@@ -1,6 +1,14 @@
-var Repository = function () {
+var Repository = function (options) {
   this.__dataSource = null;
+  this.__path = null;
+  if (options && 'dataSource' in options) {
+    this.__dataSource = options.dataSource;
+  }
+  if (options && 'path' in options) {
+    this.__path = options.path;
+  }
   Object.defineProperty(this, '__dataSource', { enumerable: false });
+  Object.defineProperty(this, '__path', { enumerable: false });
   Object.seal(this);
 };
 
@@ -16,45 +24,60 @@ Repository.prototype = Object.create(Object.prototype, {
     enumerable: true
   },
 
+  path: {
+    get: function () {
+      return this.__path;
+    },
+    set: function (value) {
+      this.__path = value;
+    },
+    enumerable: true
+  },
+
+  // TODO: rename to 'find'...
   get: {
-    value: function (params, callback) {
+    value: function (parameters, callback) {
+      if (arguments.length === 1) {
+        callback = parameters;
+        parameters = null;
+      }
       return this
         .query()
           .get()
-            .setParameters(params)
+            .setParameters(parameters)
             .execute(callback);
     },
     enumerable: true
   },
 
   save: {
-    value: function (params, document, callback) {
+    value: function (parameters, document, callback) {
       return this
         .query()
           .post()
-            .setParameters(params)
+            .setParameters(parameters)
             .execute(callback);
     },
     enumerable: true
   },
 
   update: {
-    value: function (params, document, callback) {
+    value: function (parameters, document, callback) {
       return this
         .query()
           .put()
-            .setParameters(params)
+            .setParameters(parameters)
             .execute(callback);
     },
     enumerable: true
   },
 
   patch: {
-    value: function (params, document, callback) {
+    value: function (parameters, document, callback) {
       return this
         .query()
           .patch()
-            .setParameters(params)
+            .setParameters(parameters)
             .execute(callback);
     },
     enumerable: true

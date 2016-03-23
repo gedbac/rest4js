@@ -5,6 +5,33 @@
 
 Stability: Under development
 
+    var dataSource = new rest.DataSource({
+      host: 'localhost'
+    });
+
+    var userRepository = new rest.Repository({
+      dataSource: dataSource,
+      path: '/api/users'
+    });
+
+    userRepository
+      .get(42)
+      .then(context => {
+
+      })
+      .catch(reason => {
+        
+      });
+
+    var userSettingRepository = new rest.Repository({
+      dataSource: dataSource,
+      path: '/api/users/:id/settings'
+    });
+
+    var batch = new rest.Batch()
+      .then(userRepository.get)
+      .then(userSettingRepository.get);
+
 ## CRUD
 
 ### repository.get(id, callback)
@@ -53,7 +80,7 @@ Stability: Under development
     });
 
     op.cancel();
-    
+
 ## Batching
 
     var batch = new BatchOperation()

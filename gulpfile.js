@@ -12,11 +12,17 @@ var pkg = require('./package.json'),
     stylish = require('gulp-jscs-stylish'),
     uglify = require('gulp-uglify'),
     sourcemaps = require('gulp-sourcemaps'),
-    jasmine = require('gulp-jasmine');
+    jasmine = require('gulp-jasmine'),
+    jasminePhantom = require('gulp-jasmine-phantom'),
+    rename = require("gulp-rename");
 
 var src = [
+  './src/UrlBuilder.js',
   './src/DataException.js',
   './src/DataSource.js',
+  './src/IQueryTranslator.js',
+  './src/QueryTranslator.js',
+  './src/OperationContext.js',
   './src/IOperation.js',
   './src/QueryOperation.js',
   './src/BatchOperation.js',
@@ -63,6 +69,12 @@ gulp.task('concat', [ 'clean' ], function() {
       "  }\r\n\r\n"
     ].join('\r\n'), { pkg : pkg }))
     .pipe(footer('\r\n\r\n} (window.rest));'))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('minify', function() {
+  return gulp.src('./' + pkg.name + '.js')
+    .pipe(rename('./' + pkg.name + '.min.js'))
     .pipe(sourcemaps.init())
       .pipe(uglify({
         mangle: false,
@@ -72,11 +84,21 @@ gulp.task('concat', [ 'clean' ], function() {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('test', [ 'concat' ], function () {
+//gulp.task('test', [ 'concat', 'minify' ], function () {
+//  return gulp.src('./spec/**/*.spec.js')
+//    .pipe(jasmine({
+//      verbose: true
+//    }));
+//});
+
+gulp.task('build', [ 'concat', 'minify' ], function () {
   return gulp.src('./spec/**/*.spec.js')
-    .pipe(jasmine({
-      verbose: true
+    .pipe(jasminePhantom({
+      jasmineVersion: '2.3',
+      integration: true,
+      keepRunner: './',
+      vendor: [
+        './' + pkg.name + '.js'
+      ]
     }));
 });
-
-gulp.task('default', [ 'test' ]);

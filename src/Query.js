@@ -1,14 +1,27 @@
 var Query = function () {
+  this.__dataSource = null;
   this.__method = 'GET';
   this.__headers = {};
   this.__content = null;
+  this.__parameters = null;
+  this.__timeout = null;
+  Object.defineProperty(this, '__dataSource', { enumerable: false });
   Object.defineProperty(this, '__method', { enumerable: false });
   Object.defineProperty(this, '__headers', { enumerable: false });
   Object.defineProperty(this, '__content', { enumerable: false });
+  Object.defineProperty(this, '__parameters', { enumerable: false });
+  Object.defineProperty(this, '__timeout', { enumerable: false });
   Object.seal(this);
 };
 
 Query.prototype = Object.create(Object.prototype, {
+
+  dataSource: {
+    get: function () {
+      return this.__dataSource;
+    },
+    enumerable: true
+  },
 
   method: {
     get: function () {
@@ -27,6 +40,24 @@ Query.prototype = Object.create(Object.prototype, {
   content: {
     get: function () {
       return this.__content;
+    },
+    enumerable: true
+  },
+
+  timeout: {
+    get: function () {
+      return this.__timeout;
+    },
+    enumerable: true
+  },
+
+  setDataSource: {
+    value: function (value) {
+      if (!value) {
+        throw new DataException("Parameter 'value' is not passed to the method 'setDataSource'");
+      }
+      this.__dataSource = value;
+      return this;
     },
     enumerable: true
   },
@@ -56,6 +87,25 @@ Query.prototype = Object.create(Object.prototype, {
   setContent: {
     value: function (content) {
       this.__content = content;
+      return this;
+    },
+    enumerable: true
+  },
+
+  setParameters: {
+    value: function (parameters) {
+      if (parameters) {
+        this.__parameters = parameters;
+      }
+      return this;
+    },
+    enumerable: true
+  },
+
+  setTimeout: {
+    value: function (timeout) {
+      this.__timeout = timeout;
+      return this;
     },
     enumerable: true
   },
@@ -91,6 +141,16 @@ Query.prototype = Object.create(Object.prototype, {
   del: {
     value: function () {
       return this.setMethod('DELETE');
+    },
+    enumerable: true
+  },
+
+  execute: {
+    value: function (callback) {
+      return new QueryOperation()
+        .execute({
+          query: this
+        }, callback);
     },
     enumerable: true
   },

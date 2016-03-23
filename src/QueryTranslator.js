@@ -4,9 +4,20 @@ var QueryTranslator = function () {
 
 QueryTranslator.prototype = Object.create(Object.prototype, {
 
+	translate: {
+		value: function (query) {
+      var url = null;
+      if (query) {
+        url = 'https://loaddex.logisticallabs.com/api';
+      }
+			return url;
+		},
+		enumerable: true
+	},
+
   toString: {
     value: function () {
-      return '[object QueryTransltor]';
+      return '[object QueryTranslator]';
     },
     enumerable: true
   }
