@@ -11,10 +11,18 @@ var pkg = require('./package.json'),
     jscs = require('gulp-jscs'),
     stylish = require('gulp-jscs-stylish'),
     uglify = require('gulp-uglify'),
-    sourcemaps = require('gulp-sourcemaps'),
     jasmine = require('gulp-jasmine'),
     jasminePhantom = require('gulp-jasmine-phantom'),
-    rename = require("gulp-rename");
+    rename = require("gulp-rename"),
+
+    browserify = require('browserify'),
+    babelify = require('babelify'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
+
+    sourcemaps = require('gulp-sourcemaps'),
+    rename = require("gulp-rename"),
+    babel = require("gulp-babel");
 
 var src = [
   './src/UrlBuilder.js',
@@ -30,12 +38,12 @@ var src = [
   './src/Repository.js'
 ];
 
-gulp.task('clean', function() {
+gulp.task('clean_old', function() {
   return gulp.src([
-      './' + pkg.name + '.js', 
+      './' + pkg.name + '.js',
       './' + pkg.name + '.min.js'
-    ], { 
-      read: false  
+    ], {
+      read: false
     })
     .pipe(clean());
 });
@@ -73,7 +81,8 @@ gulp.task('concat', [ 'clean' ], function() {
 });
 
 gulp.task('minify', function() {
-  return gulp.src('./' + pkg.name + '.js')
+  return gulp
+    .src('./' + pkg.name + '.js')
     .pipe(rename('./' + pkg.name + '.min.js'))
     .pipe(sourcemaps.init())
       .pipe(uglify({
@@ -91,7 +100,7 @@ gulp.task('minify', function() {
 //    }));
 //});
 
-gulp.task('build', [ 'concat', 'minify' ], function () {
+gulp.task('build_old', [ 'concat', 'minify' ], function () {
   return gulp.src('./spec/**/*.spec.js')
     .pipe(jasminePhantom({
       jasmineVersion: '2.3',
@@ -101,4 +110,49 @@ gulp.task('build', [ 'concat', 'minify' ], function () {
         './' + pkg.name + '.js'
       ]
     }));
+});
+
+gulp.task('clean', () => {
+  return gulp.src('./dist/', {
+      read: false
+    })
+    .pipe(clean());
+});
+
+gulp.task('build_old1', [ 'clean' ], () => {
+  return gulp
+    .src("./src/**/*.es6.js")
+    .pipe(sourcemaps.init())
+    .pipe(rename((path) => {
+      path.basename = path.basename.replace(".es6", "");
+    }))
+    .pipe(babel({
+      plugins: [
+        "babel-plugin-transform-es2015-modules-commonjs"
+      ]
+    }))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./dist/"));
+});
+
+gulp.task('build', [ 'clean' ], () => {
+  return browserify({
+      entries: './src/rest.es6.js',
+      extensions: [ '.js', '.es6.js' ],
+      paths: [ './src' ],
+      standalone: 'rest',
+      debug: true
+    })
+    .transform('babelify', {
+      plugins: [
+        "babel-plugin-transform-es2015-modules-commonjs"
+      ]
+    })
+    .bundle()
+    .pipe(source('./rest.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist'))
+    .pipe(gulp.dest('./sample'));
 });

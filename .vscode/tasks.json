@@ -13,7 +13,6 @@
             "isWatching": false,
             "problemMatcher": [
                 "$lessCompile",
-                "$tsc",
                 "$jshint"
             ]
         }

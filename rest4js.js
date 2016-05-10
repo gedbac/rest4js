@@ -112,195 +112,196 @@
   
   exports.UrlBuilder = UrlBuilder;
 
-  var DataException = function () {
-    this.__name = 'DataException';
-    this.__stack = null;
-    this.__message = message || "A data exception has occurred.";
-    var lines, i, tmp;
-    if ((typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Chrome') !== -1) ||
-      (typeof navigator === 'undefined')) {
-      lines = new Error().stack.split('\n');
-      if (lines && lines.length > 2) {
-        tmp = [];
-        for (i = 2; i < lines.length; i++) {
-          if (lines[i]) {
-            tmp.push(lines[i].trim());
-          }
-        }
-        this.stack = tmp.join('\n');
-      }
-    } else if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1) {
-      lines = new Error().stack.split('\n');
-      if (lines && lines.length > 1) {
-        tmp = [];
-        for (i = 1; i < lines.length; i++) {
-          if (lines[i]) {
-            tmp.push('at ' + lines[i].trim().replace('@', ' (') + ')');
-          }
-        }
-        this.stack = tmp.join('\n');
-      }
-    } else if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Trident') !== -1) {
-      try {
-        throw new Error();
-      } catch (error) {
-        if ('stack' in error) {
-          lines = error.stack.split('\n');
-          if (lines && lines.length > 2) {
-            tmp = [];
-            for (i = 2; i < lines.length; i++) {
-              if (lines[i]) {
-                tmp.push(lines[i].trim());
-              }
-            }
-            this.stack = tmp.join('\n');
-          }
-        } else {
-          this.stack = '';
-        }
-      }
-    } else {
-      var error = new Error();
-      if ('stack' in error) {
-        this.stack = error.stack;
-      } else {
-        this.stack = '';
-      }
-    }
-    Object.defineProperty(this, '__name', { enumerable: false });
-    Object.defineProperty(this, '__message', { enumerable: false });
-    Object.defineProperty(this, '__stack', { enumerable: false });
-    Object.seal(this);
-  };
-  
-  DataException.prototype = Object.create(Object.prototype, {
-  
-    name: {
-      get: function () {
-        return this.__name;
-      },
-      set: function (value) {
-        this.__name = value;
-      },
-      enumerable: true
-    },
-  
-    message: {
-      get: function () {
-        return this.__message;
-      },
-      set: function (value) {
-        this.__message = value;
-      },
-      enumerable: true
-    },
-  
-    stack: {
-      get: function () {
-        return this.__stack;
-      },
-      set: function (value) {
-        this.__stack = value;
-      },
-      enumerable: true
-    },
-  
-    toString: {
-      value: function () {
-        var msg = this.name + ': ' + this.message;
-        if (this.stack) {
-          msg += '\n\t' + this.stack.replace(/\n/g, '\n\t');
-        }
-        return msg;
-      },
-      enumerable: true
-    }
-  
-  });
-  
-  Object.seal(DataException);
-  Object.seal(DataException.prototype);
-  
+  var DataException = function () {
+    this.__name = 'DataException';
+    this.__stack = null;
+    this.__message = message || "A data exception has occurred.";
+    var lines, i, tmp;
+    if ((typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Chrome') !== -1) ||
+      (typeof navigator === 'undefined')) {
+      lines = new Error().stack.split('\n');
+      if (lines && lines.length > 2) {
+        tmp = [];
+        for (i = 2; i < lines.length; i++) {
+          if (lines[i]) {
+            tmp.push(lines[i].trim());
+          }
+        }
+        this.stack = tmp.join('\n');
+      }
+    } else if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1) {
+      lines = new Error().stack.split('\n');
+      if (lines && lines.length > 1) {
+        tmp = [];
+        for (i = 1; i < lines.length; i++) {
+          if (lines[i]) {
+            tmp.push('at ' + lines[i].trim().replace('@', ' (') + ')');
+          }
+        }
+        this.stack = tmp.join('\n');
+      }
+    } else if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Trident') !== -1) {
+      try {
+        throw new Error();
+      } catch (error) {
+        if ('stack' in error) {
+          lines = error.stack.split('\n');
+          if (lines && lines.length > 2) {
+            tmp = [];
+            for (i = 2; i < lines.length; i++) {
+              if (lines[i]) {
+                tmp.push(lines[i].trim());
+              }
+            }
+            this.stack = tmp.join('\n');
+          }
+        } else {
+          this.stack = '';
+        }
+      }
+    } else {
+      var error = new Error();
+      if ('stack' in error) {
+        this.stack = error.stack;
+      } else {
+        this.stack = '';
+      }
+    }
+    Object.defineProperty(this, '__name', { enumerable: false });
+    Object.defineProperty(this, '__message', { enumerable: false });
+    Object.defineProperty(this, '__stack', { enumerable: false });
+    Object.seal(this);
+  };
+  
+  DataException.prototype = Object.create(Object.prototype, {
+  
+    name: {
+      get: function () {
+        return this.__name;
+      },
+      set: function (value) {
+        this.__name = value;
+      },
+      enumerable: true
+    },
+  
+    message: {
+      get: function () {
+        return this.__message;
+      },
+      set: function (value) {
+        this.__message = value;
+      },
+      enumerable: true
+    },
+  
+    stack: {
+      get: function () {
+        return this.__stack;
+      },
+      set: function (value) {
+        this.__stack = value;
+      },
+      enumerable: true
+    },
+  
+    toString: {
+      value: function () {
+        var msg = this.name + ': ' + this.message;
+        if (this.stack) {
+          msg += '\n\t' + this.stack.replace(/\n/g, '\n\t');
+        }
+        return msg;
+      },
+      enumerable: true
+    }
+  
+  });
+  
+  Object.seal(DataException);
+  Object.seal(DataException.prototype);
+  
   exports.DataException = DataException;
 
-  var DataSource = function (options) {
-  	this.__protocol = 'http';
-  	this.__host = 'localhost';
-  	this.__port = 80;
-  	this.__timeout = 30;
-  	if (options && 'protocol' in options) {
-  		this.__protocol = options.protocol;
-  	}
-  	if (options && 'host' in options) {
-  		this.__host = options.host;
-  	}
-  	if (options && 'port' in options) {
-  		this.__port = options.port;
-  	}
-  	if (options && 'timeout' in options) {
-  		this.__timeout = options.timeout;
-  	}
-  	Object.defineProperty(this, '__protocol', { enumerable: false });
-  	Object.defineProperty(this, '__host', { enumerable: false });
-  	Object.defineProperty(this, '__port', { enumerable: false });
-  	Object.defineProperty(this, '__timeout', { enumerable: false });
-    Object.seal(this);
-  };
-  
-  DataSource.prototype = Object.create(Object.prototype, {
-  
-  	protocol: {
-  		get: function () {
-  			return this.__protocol;
-  		},
-  		set: function (value) {
-  			this.__protocol = value;
-  		},
-  		enumerable: true
-  	},
-  
-  	host: {
-  		get: function () {
-  			return this.__host;
-  		},
-  		set: function (value) {
-  			this.__host = value;
-  		},
-  		enumerable: true
-  	},
-  
-  	port: {
-  		get: function () {
-  			return this.__port;
-  		},
-  		set: function (value) {
-  			this.__port = value;
-  		},
-  		enumerable: true
-  	},
-  
-  	timeout: {
-  		get: function () {
-  			return this.__timeout;
-  		},
-  		set: function (value) {
-  			this.__timeout = value;
-  		},
-  		enumerable: true
-  	},
-  
-    toString: {
-      value: function () {
-        return '[object DataSource]';
-      },
-      enumerable: true
-    }
-  
-  });
-  
-  Object.seal(DataSource);
-  Object.seal(DataSource.prototype);
-  
+  // it has to have username and password fields
+  var DataSource = function (options) {
+  	this.__protocol = 'http';
+  	this.__host = 'localhost';
+  	this.__port = 80;
+  	this.__timeout = 30;
+  	if (options && 'protocol' in options) {
+  		this.__protocol = options.protocol;
+  	}
+  	if (options && 'host' in options) {
+  		this.__host = options.host;
+  	}
+  	if (options && 'port' in options) {
+  		this.__port = options.port;
+  	}
+  	if (options && 'timeout' in options) {
+  		this.__timeout = options.timeout;
+  	}
+  	Object.defineProperty(this, '__protocol', { enumerable: false });
+  	Object.defineProperty(this, '__host', { enumerable: false });
+  	Object.defineProperty(this, '__port', { enumerable: false });
+  	Object.defineProperty(this, '__timeout', { enumerable: false });
+    Object.seal(this);
+  };
+  
+  DataSource.prototype = Object.create(Object.prototype, {
+  
+  	protocol: {
+  		get: function () {
+  			return this.__protocol;
+  		},
+  		set: function (value) {
+  			this.__protocol = value;
+  		},
+  		enumerable: true
+  	},
+  
+  	host: {
+  		get: function () {
+  			return this.__host;
+  		},
+  		set: function (value) {
+  			this.__host = value;
+  		},
+  		enumerable: true
+  	},
+  
+  	port: {
+  		get: function () {
+  			return this.__port;
+  		},
+  		set: function (value) {
+  			this.__port = value;
+  		},
+  		enumerable: true
+  	},
+  
+  	timeout: {
+  		get: function () {
+  			return this.__timeout;
+  		},
+  		set: function (value) {
+  			this.__timeout = value;
+  		},
+  		enumerable: true
+  	},
+  
+    toString: {
+      value: function () {
+        return '[object DataSource]';
+      },
+      enumerable: true
+    }
+  
+  });
+  
+  Object.seal(DataSource);
+  Object.seal(DataSource.prototype);
+  
   exports.DataSource = DataSource;
 
   var IQueryTranslator  = Object.create(Object.prototype, {
@@ -727,6 +728,7 @@
       enumerable: true
     },
   
+    // TODO: rename to 'find'...
     get: {
       value: function (parameters, callback) {
         if (arguments.length === 1) {

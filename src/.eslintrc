@@ -1,0 +1,20 @@
+{
+  "extends": "eslint:recommended",
+  "envs": [
+    "node", "browser"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "rules": {
+    "semi": [2, "always"],
+    "max-len": [2, 120, 4],
+    "indent": [2, 2, { "VariableDeclarator": 2, "SwitchCase": 1 }],
+    "curly": 2,
+    "no-undef": 0,
+    "no-unused-vars": [2, {
+      "args": "none"
+    }]
+  }
+}

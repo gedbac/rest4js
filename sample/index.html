@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sample</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  </head>
+  <body>
+    <script src="./require.js"></script>
+    <script>
+      (() => {
+        'use strict';
+        requirejs.config({
+          baseUrl: '.',
+        });
+        requirejs([ "rest" ], (rest) => {
+          var client = new rest.RestClient({
+            port: 8080
+          });
+          var cancellationTokenSource = new rest.CancellationTokenSource();
+
+          // var requestMessage = new rest.RestRequestMessage({
+          //   method: 'GET',
+          //   path: '/api/users',
+          //   objectType: User
+          //   // headers: {
+          //   //   'Accept': 'application/json'
+          //   // }
+          // });
+          // client
+          //   .send(requestMessage, cancellationTokenSource.token)
+          //   .then(responseMessage => {
+          //     console.log("Users has been fetched successfuly");
+          //   })
+          //   .catch(ex => {
+          //     if (cancellationTokenSource.canceled) {
+          //       console.log(ex.message || ex);
+          //     } else {
+          //       console.error(ex.message || ex);
+          //     }
+          //   });
+          // cancellationTokenSource.cancelAfter(200);
+
+          var usersRepository = new rest.Repository({
+            client: client,
+            path: '/api/users',
+            objectType: User
+          });
+
+          usersRepository.get(null, cancellationTokenSource.token)
+            .then(users => {
+              console.log("Users has been fetched successfuly");
+            })
+            .catch(ex => {
+              if (cancellationTokenSource.canceled) {
+                console.log(ex.message || ex);
+              } else {
+                console.error(ex.message || ex);
+              }
+            });
+
+          // Bulk call:
+          // var requestMessage1 = new rest.RestRequestMessage();
+          // var p1 = client
+          //   .send(requestMessage1, cancellationTokenSource.token)
+          //   .then(() => {
+          //     console.log("Response for first request has been received");
+          //   });
+          // var requestMessage2 = new rest.RestRequestMessage();
+          // var p2 = client
+          //   .send(requestMessage2, cancellationTokenSource.token)
+          //   .then(() => {
+          //     console.log("Response for second request has been received");
+          //   });
+          // var requestMessage3 = new rest.RestRequestMessage();
+          // var p3 = client
+          //   .send(requestMessage3, cancellationTokenSource.token)
+          //   .then(() => {
+          //     console.log("Response for third request has been received");
+          //   });
+          // Promise
+          //   .all([p1, p2, p3])
+          //   .then(messages => {
+          //     console.log("All responses have been received");
+          //   });
+
+          // var bulkMessage = new rest.RestBulkRequestMessage();
+          // bulkMessage.add(requestMessage1);
+          // bulkMessage.add(requestMessage2);
+          // bulkMessage.add(requestMessage3);
+          // client.send(bulkMessage, cancellationTokenSource.token);
+
+          // Repository
+          // var repository = new rest.Repository();
+          // repository
+          //   .get(1, cancellationTokenSource.token)
+          //   .then(() => {
+
+          //   })
+          //   .catch(ex => {
+
+          //   });
+
+          // Batch:
+          // var batch = new rest.Batch();
+          // batch.add(() => repository.get(1, cancellationTokenSource.token));
+          // batch.add(() => repository.get(2, cancellationTokenSource.token));
+          // batch.execute();
+
+        });
+      })();
+    </script>
+  </body>
+</html>
+

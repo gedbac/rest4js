@@ -5,32 +5,32 @@
 
 Stability: Under development
 
-    var dataSource = new rest.DataSource({
+    var client = new rest.Client({
       host: 'localhost'
     });
 
     var userRepository = new rest.Repository({
-      dataSource: dataSource,
+      client: client,
       path: '/api/users'
     });
 
     userRepository
       .get(42)
-      .then(context => {
+      .then(response => {
 
       })
       .catch(reason => {
-        
+
       });
 
-    var userSettingRepository = new rest.Repository({
-      dataSource: dataSource,
-      path: '/api/users/:id/settings'
-    });
+    // var userSettingRepository = new rest.Repository({
+    //   dataSource: dataSource,
+    //   path: '/api/users/:id/settings'
+    // });
 
-    var batch = new rest.Batch()
-      .then(userRepository.get)
-      .then(userSettingRepository.get);
+    // var batch = new rest.Batch()
+    //   .then(userRepository.get)
+    //   .then(userSettingRepository.get);
 
 ## CRUD
 
@@ -70,25 +70,100 @@ Stability: Under development
       if (!e.error && !e.cancelled) {
       }
     });
+## Queries
+
+    var userRepository = new rest.Repository({
+      client: client,
+      path: '/api/users/:id'
+    });
+
+    var cancellationTokenSource = new rest.CancellationTokenSource();
+    userRepository
+      .query()
+        .get()
+          .setParameter('id', 2)
+        .execute(cancellationTokenSource.token)
+        .then(() => {
+
+        })
+        .catch(ex => {
+
+        });
 
 ## Cancellation
 
-    var op = repository.get(id, function (e) {
-      if (!e.error && !e.cancelled) {
-        entity = e.result;
-      }
-    });
+    var cancellationTokenSource = new rest.CancellationTokenSource();
+    repository
+      .get(id, cancellationTokenSource.token)
+      .then(() => {})
+      .catch(ex => {});
 
-    op.cancel();
+    cancellationTokenSource.cancelAfer(200);
 
 ## Batching
 
-    var batch = new BatchOperation()
-      .add(function () {
-        return repository.get(id, function (e) {
-          if (!e.error && !e.cancelled) {
-            document = e.result;
-          }
-        });
+    var batch = new rest.Batch();
+      .add(() => return repository.get(id))
+      .add(() => return repository.get(id))
+      .execute();
+
+## Retry
+
+## Interceptions
+
+## ??
+
+If you are not confortable with repository pattern or it restricts you to much, you can
+always use lower level API, which allows to create request manually. See an example
+bellow.
+
+    var client = new rest.RestClient({
+      port: 8080
+    });
+    var cancellationTokenSource = new rest.CancellationTokenSource();
+    var requestMessage = new rest.RestRequestMessage({
+      method: 'GET',
+      path: '/api/users',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    client
+      .send(requestMessage, cancellationTokenSource.token)
+      .then(responseMessage => {
+        console.log("Users has been fetched successfuly");
       })
-      .execute(function (e) {});
+      .catch(ex => {
+        if (cancellationTokenSource.canceled) {
+          console.log(ex.message || ex);
+        } else {
+          console.error(ex.message || ex);
+        }
+      });
+
+Below is a sample conversation between an HTTP client and an HTTP server running on *localhost*, port *8080*.
+
+Client request
+
+    GET /api/users HTTP/1.1
+    Host: localhost:8080
+    Accept: application/json
+    X-Requested-With: XMLHttpRequest
+
+Server response
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Date: Sat, 07 May 2016 06:54:38 GMT
+    Content-Length: 114
+
+    [
+        {
+            "id": 1,
+            "username": "jon"
+        },
+        {
+            "id": 2,
+            "username": "tom"
+        }
+    ]
