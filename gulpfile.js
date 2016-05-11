@@ -93,9 +93,9 @@ var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('clean', () => {
   return gulp.src('./dist/', {
-      read: false
-    })
-    .pipe(clean());
+    read: false
+  })
+  .pipe(clean());
 });
 
 // gulp.task('build_old1', [ 'clean' ], () => {
@@ -116,24 +116,24 @@ gulp.task('clean', () => {
 
 gulp.task('build', [ 'clean' ], () => {
   return browserify({
-      entries: './src/rest.es6.js',
-      extensions: [ '.js', '.es6.js' ],
-      paths: [ './src' ],
-      standalone: 'rest',
-      debug: true
-    })
-    .transform('babelify', {
-      plugins: [
-        "babel-plugin-transform-es2015-modules-commonjs"
-      ]
-    })
-    .bundle()
-    .pipe(source('./rest.js'))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist'))
-    .pipe(gulp.dest('./sample'));
+    entries: './src/rest.es6.js',
+    extensions: [ '.js', '.es6.js' ],
+    paths: [ './src' ],
+    standalone: 'rest',
+    debug: true
+  })
+  .transform('babelify', {
+    plugins: [
+      "babel-plugin-transform-es2015-modules-commonjs"
+    ]
+  })
+  .bundle()
+  .pipe(source('./rest.js'))
+  .pipe(buffer())
+  .pipe(sourcemaps.init({ loadMaps: true }))
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('./dist'))
+  .pipe(gulp.dest('./sample'));
 });
 
 gulp.task('default', [ 'build' ]);
