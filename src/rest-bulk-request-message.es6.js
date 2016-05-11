@@ -1,5 +1,5 @@
 import Options from 'options';
-import RestRequestMessage from "rest-request-message";
+import RestRequestMessage from 'rest-request-message';
 
 export default class RestBulkRequestMessage {
 

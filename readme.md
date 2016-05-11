@@ -5,8 +5,10 @@
 
 Stability: Under development
 
+Fetch data from your RESTfull web service in the easy way.
+
     var client = new rest.Client({
-      host: 'localhost'
+      port: 8080
     });
 
     var userRepository = new rest.Repository({
@@ -15,23 +17,41 @@ Stability: Under development
     });
 
     userRepository
-      .get(42)
-      .then(response => {
-
+      .get()
+      .then(users => {
+        console.log(users);
       })
-      .catch(reason => {
-
+      .catch(error => {
+        console.log(error.message || error);
       });
 
-    // var userSettingRepository = new rest.Repository({
-    //   dataSource: dataSource,
-    //   path: '/api/users/:id/settings'
-    // });
+Below is a sample conversation between an HTTP client and an HTTP server running on *localhost*, port *8080*.
 
-    // var batch = new rest.Batch()
-    //   .then(userRepository.get)
-    //   .then(userSettingRepository.get);
+Client request
 
+    GET /api/users HTTP/1.1
+    Host: localhost:8080
+    Accept: application/json
+    X-Requested-With: XMLHttpRequest
+
+Server response
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Date: Sat, 07 May 2016 06:54:38 GMT
+    Content-Length: 114
+
+    [
+        {
+            "id": 1,
+            "username": "jon"
+        },
+        {
+            "id": 2,
+            "username": "tom"
+        }
+    ]
+    
 ## CRUD
 
 ### repository.get(id, callback)
@@ -70,6 +90,7 @@ Stability: Under development
       if (!e.error && !e.cancelled) {
       }
     });
+
 ## Queries
 
     var userRepository = new rest.Repository({
@@ -82,6 +103,8 @@ Stability: Under development
       .query()
         .get()
           .setParameter('id', 2)
+          .skip(0)
+          .take(10)
         .execute(cancellationTokenSource.token)
         .then(() => {
 
@@ -140,30 +163,3 @@ bellow.
           console.error(ex.message || ex);
         }
       });
-
-Below is a sample conversation between an HTTP client and an HTTP server running on *localhost*, port *8080*.
-
-Client request
-
-    GET /api/users HTTP/1.1
-    Host: localhost:8080
-    Accept: application/json
-    X-Requested-With: XMLHttpRequest
-
-Server response
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Date: Sat, 07 May 2016 06:54:38 GMT
-    Content-Length: 114
-
-    [
-        {
-            "id": 1,
-            "username": "jon"
-        },
-        {
-            "id": 2,
-            "username": "tom"
-        }
-    ]

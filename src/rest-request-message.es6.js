@@ -9,6 +9,7 @@ export default class RestRequestMessage {
     this.accept = null;
     this.content = null;
     this.contentType = null;
+    this.objectType = null;
     this.timeout = null;
     Options.extend(this, options);
   }

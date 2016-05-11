@@ -1,6 +1,5 @@
 import Options from 'options';
-import CancellationToken from "cancellation-token";
-import RestRequestMessage from "rest-request-message";
+import CancellationToken from 'cancellation-token';
 
 export default class Query {
 
@@ -18,7 +17,7 @@ export default class Query {
   setMethod(value) {
     if (!value) {
       throw {
-        message: "Parameter 'value' is passed to the method 'setMethod'"
+        message: "Parameter 'value' is not passed to the method 'setMethod'"
       };
     }
     this.method = value;
@@ -28,7 +27,7 @@ export default class Query {
   setPath(value) {
     if (!value) {
       throw {
-        message: "Parameter 'value' is passed to the method 'setPath'"
+        message: "Parameter 'value' is not passed to the method 'setPath'"
       };
     }
     this.path = value;
@@ -98,14 +97,6 @@ export default class Query {
   }
 
   execute(cancellationToken = CancellationToken.none) {
-    // TODO: route has to build here
-    var requestMessage = new RestRequestMessage({
-      method: this.method,
-      path: this.path,
-      headers: this.headers,
-      content: this.content,
-      timeout: this.timeout
-    });
-    return this.client.send(requestMessage, cancellationToken);
+    return this.client.send(this.queryTranslator.translate(this), cancellationToken);
   }
 }

@@ -1,6 +1,5 @@
 import CancellationToken from "cancellation-token";
 import Options from 'options';
-import Query from "query";
 
 export default class Repository {
 
@@ -13,7 +12,7 @@ export default class Repository {
 
   query() {
     if (this.client) {
-      return new Query({
+      return queryFactory.create({
         client: this.client,
         path: this.path
       });
@@ -37,18 +36,7 @@ export default class Repository {
             .execute(cancellationToken)
             .then(responseMessage => {
               if (httpRequest.status >= 200 && httpRequest.status < 300) {
-                var value = responseMessage.content;
-                if (this.objectType) {
-                  if (responseMessage.content) {
-                    // TODO: ObjectFormatter???
-                    if (responseMessage.content instanceof Array) {
-                      // TODO: convert...
-                    } else {
-                      // TODO: convert...
-                    }
-                  }
-                }
-                resolve(value);
+                resolve(responseMessage.content);
               } else {
                 // TODO: show validation errors
                 reject();
@@ -59,7 +47,6 @@ export default class Repository {
         reject(ex);
       }
     });
-
     // if (!BatchExecutionContext.current) {
     //   return this.client.send(requestMessage);
     // } else {

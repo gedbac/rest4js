@@ -1,4 +1,4 @@
-import CancellationToken from "cancellation-token";
+import CancellationToken from 'cancellation-token';
 
 export default class CancellationTokenSource {
 

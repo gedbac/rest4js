@@ -1,10 +1,12 @@
 import Options from 'options';
-import CancellationToken from "cancellation-token";
-import RestRequestMessage from "rest-request-message";
-import RestResponseMessage from "rest-response-message";
-import RestBulkRequestMessage from "rest-bulk-request-message";
-import RestBulkResponseMessage from "rest-bulk-response-message";
-import JsonMediaTypeFormatter from "json-media-type-formatter";
+import CancellationToken from 'cancellation-token';
+import RestRequestMessage from 'rest-request-message';
+import RestResponseMessage from 'rest-response-message';
+import RestBulkRequestMessage from 'rest-bulk-request-message';
+import RestBulkResponseMessage from 'rest-bulk-response-message';
+import JsonMediaTypeFormatter from 'json-media-type-formatter';
+import QueryFactory from 'query-factory';
+import QueryTranslator from 'query-translator';
 
 const DONE = 4;
 
@@ -18,6 +20,11 @@ export default class RestClient {
     this.mediaTypeFormatters = [
       new JsonMediaTypeFormatter()
     ];
+    this.services = {
+      queryFactory: new QueryFactory(),
+      queryTranslator: new QueryTranslator()
+    };
+    this.interceptors = [];
     Options.extend(this, options);
   }
 

@@ -101,13 +101,13 @@ class Batch {
 exports.default = Batch;
 
 },{"batch-execution-context":1,"cancellation-token":4}],3:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
@@ -209,15 +209,34 @@ class JsonMediaTypeFormatter extends _mediaTypeFormatter2.default {
 
   constructor(options) {
     super(options);
-    this.contentType = this.contentType || 'application/json';
+    this.mediaTypes.push('application/json');
+    this.defaultMediaType = 'application/json';
   }
 
-  read(text) {
-    return JSON.parse(text);
+  read(text, objectType) {
+    if (text) {
+      var value = JSON.parse(text);
+      if (objectType) {
+        if (value instanceof Array) {
+          var array = [];
+          value.forEach(item => {
+            array.push(new objectType(item));
+          });
+          return array;
+        } else {
+          value = new objectType(value);
+        }
+      }
+      return value;
+    }
+    return null;
   }
 
   write(value) {
-    return JSON.stringify(value);
+    if (value) {
+      return JSON.stringify(value);
+    }
+    return null;
   }
 }
 exports.default = JsonMediaTypeFormatter;
@@ -238,11 +257,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class MediaTypeFormatter {
 
   constructor(options) {
-    this.contentType = null;
+    this.mediaTypes = [];
+    this.defaultMediaType = null;
     _options2.default.extend(this, options);
   }
 
-  read(content) {
+  canReadType(objectType) {
+    return true;
+  }
+
+  carWriteType(objectType) {
+    return true;
+  }
+
+  read(content, objectType) {
     throw new {
       message: "Method 'read' is not supported for class 'MediaTypeFormatter'"
     }();
@@ -279,21 +307,21 @@ class Options {
 exports.default = Options;
 
 },{}],8:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _options = require("options");
+var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _restRequestMessage = require("rest-request-message");
+var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
@@ -409,21 +437,21 @@ class Query {
 exports.default = Query;
 
 },{"cancellation-token":4,"options":7,"rest-request-message":13}],9:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _options = require("options");
+var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
 
-var _query = require("query");
+var _query = require('query');
 
 var _query2 = _interopRequireDefault(_query);
 
@@ -458,7 +486,23 @@ class Repository {
           client: this.client,
           path: this.path
         }).get().setParameters(parameters).execute(cancellationToken).then(responseMessage => {
-          resolve();
+          if (httpRequest.status >= 200 && httpRequest.status < 300) {
+            var value = responseMessage.content;
+            if (this.objectType) {
+              if (responseMessage.content) {
+                // TODO: ObjectFormatter???
+                if (responseMessage.content instanceof Array) {
+                  // TODO: convert...
+                } else {
+                    // TODO: convert...
+                  }
+              }
+            }
+            resolve(value);
+          } else {
+            // TODO: show validation errors
+            reject();
+          }
         }).catch(ex => reject(ex));
       } catch (ex) {
         reject(ex);
@@ -496,17 +540,17 @@ class Repository {
 exports.default = Repository;
 
 },{"cancellation-token":4,"options":7,"query":8}],10:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _options = require("options");
+var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
 
-var _restRequestMessage = require("rest-request-message");
+var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
@@ -566,37 +610,37 @@ class RestBulkResponseMessage {
 exports.default = RestBulkResponseMessage;
 
 },{"options":7}],12:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _options = require("options");
+var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _restRequestMessage = require("rest-request-message");
+var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
-var _restResponseMessage = require("rest-response-message");
+var _restResponseMessage = require('rest-response-message');
 
 var _restResponseMessage2 = _interopRequireDefault(_restResponseMessage);
 
-var _restBulkRequestMessage = require("rest-bulk-request-message");
+var _restBulkRequestMessage = require('rest-bulk-request-message');
 
 var _restBulkRequestMessage2 = _interopRequireDefault(_restBulkRequestMessage);
 
-var _restBulkResponseMessage = require("rest-bulk-response-message");
+var _restBulkResponseMessage = require('rest-bulk-response-message');
 
 var _restBulkResponseMessage2 = _interopRequireDefault(_restBulkResponseMessage);
 
-var _jsonMediaTypeFormatter = require("json-media-type-formatter");
+var _jsonMediaTypeFormatter = require('json-media-type-formatter');
 
 var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
 
@@ -770,6 +814,7 @@ class RestRequestMessage {
     this.accept = null;
     this.content = null;
     this.contentType = null;
+    this.objectType = null;
     this.timeout = null;
     _options2.default.extend(this, options);
   }
@@ -805,58 +850,58 @@ class RestResponseMessage {
 exports.default = RestResponseMessage;
 
 },{"options":7}],15:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = undefined;
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _cancellationTokenSource = require("cancellation-token-source");
+var _cancellationTokenSource = require('cancellation-token-source');
 
 var _cancellationTokenSource2 = _interopRequireDefault(_cancellationTokenSource);
 
-var _restClient = require("rest-client");
+var _restClient = require('rest-client');
 
 var _restClient2 = _interopRequireDefault(_restClient);
 
-var _restRequestMessage = require("rest-request-message");
+var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
-var _restResponseMessage = require("rest-response-message");
+var _restResponseMessage = require('rest-response-message');
 
 var _restResponseMessage2 = _interopRequireDefault(_restResponseMessage);
 
-var _restBulkRequestMessage = require("rest-bulk-request-message");
+var _restBulkRequestMessage = require('rest-bulk-request-message');
 
 var _restBulkRequestMessage2 = _interopRequireDefault(_restBulkRequestMessage);
 
-var _restBulkResponseMessage = require("rest-bulk-response-message");
+var _restBulkResponseMessage = require('rest-bulk-response-message');
 
 var _restBulkResponseMessage2 = _interopRequireDefault(_restBulkResponseMessage);
 
-var _batch = require("batch");
+var _batch = require('batch');
 
 var _batch2 = _interopRequireDefault(_batch);
 
-var _query = require("query");
+var _query = require('query');
 
 var _query2 = _interopRequireDefault(_query);
 
-var _repository = require("repository");
+var _repository = require('repository');
 
 var _repository2 = _interopRequireDefault(_repository);
 
-var _mediaTypeFormatter = require("media-type-formatter");
+var _mediaTypeFormatter = require('media-type-formatter');
 
 var _mediaTypeFormatter2 = _interopRequireDefault(_mediaTypeFormatter);
 
-var _jsonMediaTypeFormatter = require("json-media-type-formatter");
+var _jsonMediaTypeFormatter = require('json-media-type-formatter');
 
 var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
 

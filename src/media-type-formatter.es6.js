@@ -3,11 +3,20 @@ import Options from 'options';
 export default class MediaTypeFormatter {
 
   constructor(options) {
-    this.contentType = null;
+    this.mediaTypes = [];
+    this.defaultMediaType = null;
     Options.extend(this, options);
   }
 
-  read(content) {
+  canReadType(objectType) {
+    return true;
+  }
+
+  carWriteType(objectType) {
+    return true;
+  }
+
+  read(content, objectType) {
     throw new {
       message: "Method 'read' is not supported for class 'MediaTypeFormatter'"
     };
