@@ -1,3 +1,5 @@
+import RestRequestMessage from 'rest-request-message';
+
 export default class QueryTranslator {
 
   constructor() {}

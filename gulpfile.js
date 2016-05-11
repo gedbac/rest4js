@@ -6,26 +6,12 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var sourcemaps = require('gulp-sourcemaps');
+var jasmine = require('gulp-jasmine');
+var jasminePhantom = require('gulp-jasmine-phantom');
+var babel = require("gulp-babel");
 
-//var pkg = require('./package.json');
-
-    // jasmine = require('gulp-jasmine'),
-    // jasminePhantom = require('gulp-jasmine-phantom'),
-
-    //babelify = require('babelify'),
-
-    //rename = require("gulp-rename"),
-    //babel = require("gulp-babel");
-
-// gulp.task('clean_old', function() {
-//   return gulp.src([
-//       './' + pkg.name + '.js',
-//       './' + pkg.name + '.min.js'
-//     ], {
-//       read: false
-//     })
-//     .pipe(clean());
-// });
+// var Reporter = require('jasmine-terminal-reporter');
+// var reporter = new Reporter(options)
 
 // gulp.task('concat', [ 'clean' ], function() {
 //   return gulp.src(src)
@@ -71,13 +57,6 @@ var sourcemaps = require('gulp-sourcemaps');
 //     .pipe(sourcemaps.write('./'))
 //     .pipe(gulp.dest('./'));
 // });
-
-//gulp.task('test', [ 'concat', 'minify' ], function () {
-//  return gulp.src('./spec/**/*.spec.js')
-//    .pipe(jasmine({
-//      verbose: true
-//    }));
-//});
 
 // gulp.task('build_old', [ 'concat', 'minify' ], function () {
 //   return gulp.src('./spec/**/*.spec.js')
@@ -134,6 +113,31 @@ gulp.task('build', [ 'clean' ], () => {
   .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('./dist'))
   .pipe(gulp.dest('./sample'));
+});
+
+gulp.task('node-tests', [ 'build' ], function () {
+  return gulp.src('./spec/**/*.spec.js')
+   .pipe(jasmine({
+     verbose: true
+   }));
+});
+
+gulp.task('browser-tests', [ 'build' ], function () {
+  return gulp
+    .src('./spec/**/*.spec.js')
+    .pipe(babel({
+      plugins: [
+        "babel-plugin-transform-es2015-modules-commonjs"
+      ]
+    }))
+    .pipe(jasminePhantom({
+      jasmineVersion: '2.4',
+      integration: true,
+      keepRunner: './',
+      vendor: [
+        './dist/rest.js'
+      ]
+    }));
 });
 
 gulp.task('default', [ 'build' ]);

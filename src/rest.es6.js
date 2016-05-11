@@ -6,6 +6,7 @@ import RestResponseMessage from 'rest-response-message';
 import RestBulkRequestMessage from 'rest-bulk-request-message';
 import RestBulkResponseMessage from 'rest-bulk-response-message';
 import Batch from 'batch';
+import QueryBase from 'query-base';
 import Query from 'query';
 import Repository from 'repository';
 import MediaTypeFormatter from 'media-type-formatter';
@@ -22,6 +23,7 @@ export {
   RestBulkRequestMessage,
   RestBulkResponseMessage,
   Batch,
+  QueryBase,
   Query,
   Repository,
   MediaTypeFormatter,

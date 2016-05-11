@@ -11,16 +11,22 @@ export default class Repository {
   }
 
   query() {
-    if (this.client) {
-      return queryFactory.create({
+    var query = null;
+    var queryFactory = null;
+    if (this.client && this.client.services) {
+      queryFactory = this.client.services.queryFactory;
+    }
+    if (queryFactory) {
+      query = queryFactory.create({
         client: this.client,
         path: this.path
       });
     } else {
       throw {
-        message: "Client is undefined"
+        message: "Query factoy is undefined"
       };
     }
+    return query;
   }
 
   get(parameters, cancellationToken = CancellationToken.none) {
@@ -35,11 +41,16 @@ export default class Repository {
             .setParameters(parameters)
             .execute(cancellationToken)
             .then(responseMessage => {
-              if (httpRequest.status >= 200 && httpRequest.status < 300) {
+              if (responseMessage.status >= 200 && responseMessage.status < 300) {
                 resolve(responseMessage.content);
               } else {
-                // TODO: show validation errors
-                reject();
+                if (responseMessage.content) {
+                  reject(responseMessage.content);
+                } else {
+                  reject({
+                    message: responseMessage.statusText
+                  });
+                }
               }
             })
             .catch(ex => reject(ex));
@@ -67,13 +78,27 @@ export default class Repository {
   }
 
   save(parameters, value, cancellationToken = CancellationToken.none) {
-
+    throw {
+      message: "Not implemented"
+    };
   }
 
-  update(parameters, value, cancellationToken = CancellationToken.none) {}
+  update(parameters, value, cancellationToken = CancellationToken.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
-  patch(parameters, value, cancellationToken = CancellationToken.none) {}
+  patch(parameters, value, cancellationToken = CancellationToken.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
-  del(parameters, value, cancellationToken = CancellationToken.none) {}
+  del(parameters, value, cancellationToken = CancellationToken.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
 }

@@ -21,8 +21,8 @@ Fetch data from your RESTfull web service in the easy way.
       .then(users => {
         console.log(users);
       })
-      .catch(error => {
-        console.log(error.message || error);
+      .catch(reason => {
+        console.log(reason.message || reason);
       });
 
 Below is a sample conversation between an HTTP client and an HTTP server running on *localhost*, port *8080*.
@@ -54,13 +54,28 @@ Server response
 
 ## CRUD
 
-### repository.get(id, callback)
+### repository.get(parameters, cancellationToken)
 
-    repository.get(id, function (e) {
-      if (!e.error && !e.cancelled) {
-        entity = e.result;
-      }
-    });
+You can easily fetch data by given parameters.
+
+The following example shows a regular fetch by id:
+
+    usersRepository.get(2)
+      .then(users => {
+        console.log(users);
+      })
+      .catch(reason => {
+        console.log(reason.message || reason);
+      });
+
+Sample output from the example:
+
+    [
+        {
+            "id": 2,
+            "username": "tom"
+        }
+    ]
 
 ### repository.save(entity, callback)
 

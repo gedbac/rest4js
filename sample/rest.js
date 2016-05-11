@@ -313,60 +313,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _query = require('query');
-
-var _query2 = _interopRequireDefault(_query);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-class QueryFactory {
-
-  create(options) {
-    return new _query2.default(options);
-  }
-
-}
-exports.default = QueryFactory;
-
-},{"query":10}],9:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-class QueryTranslator {
-
-  constructor() {}
-
-  translate(query) {
-    var requestMessage = null;
-    if (query) {
-      // TODO: route has to build here
-      requestMessage = new RestRequestMessage({
-        method: query.method,
-        path: query.path,
-        headers: query.headers,
-        content: query.content,
-        timeout: query.timeout
-      });
-    } else {
-      throw {
-        message: "Parameter 'query' is not passed to the method 'translate'"
-      };
-    }
-    return requestMessage;
-  }
-
-}
-exports.default = QueryTranslator;
-
-},{}],10:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
@@ -377,7 +323,7 @@ var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class Query {
+class QueryBase {
 
   constructor(options) {
     this.client = null;
@@ -444,6 +390,27 @@ class Query {
     return this;
   }
 
+  setTimeout(value) {
+    this.timeout = value;
+    return this;
+  }
+
+  execute(cancellationToken = _cancellationToken2.default.none) {
+    return new Promise((resolve, reject) => {
+      var queryTranslator = null;
+      if (this.client && this.client.services) {
+        queryTranslator = this.client.services.queryTranslator;
+      }
+      if (queryTranslator) {
+        this.client.send(queryTranslator.translate(this), cancellationToken).then(resolve).catch(reject);
+      } else {
+        reject({
+          message: "Query translator is undefined"
+        });
+      }
+    });
+  }
+
   get() {
     return this.setMethod('GET');
   }
@@ -464,6 +431,89 @@ class Query {
     return this.setMethod('DELETE');
   }
 
+}
+exports.default = QueryBase;
+
+},{"cancellation-token":4,"options":7}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _query = require('query');
+
+var _query2 = _interopRequireDefault(_query);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class QueryFactory {
+
+  create(options) {
+    return new _query2.default(options);
+  }
+
+}
+exports.default = QueryFactory;
+
+},{"query":11}],10:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _restRequestMessage = require("rest-request-message");
+
+var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class QueryTranslator {
+
+  constructor() {}
+
+  translate(query) {
+    var requestMessage = null;
+    if (query) {
+      // TODO: route has to build here
+      requestMessage = new _restRequestMessage2.default({
+        method: query.method,
+        path: query.path,
+        headers: query.headers,
+        content: query.content,
+        timeout: query.timeout
+      });
+    } else {
+      throw {
+        message: "Parameter 'query' is not passed to the method 'translate'"
+      };
+    }
+    return requestMessage;
+  }
+
+}
+exports.default = QueryTranslator;
+
+},{"rest-request-message":16}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _queryBase = require('query-base');
+
+var _queryBase2 = _interopRequireDefault(_queryBase);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class Query extends _queryBase2.default {
+
+  constructor(options) {
+    super(options);
+  }
+
   skip(value) {
     return this.setParameter('skip', value);
   }
@@ -472,13 +522,10 @@ class Query {
     return this.setParameter('take', value);
   }
 
-  execute(cancellationToken = _cancellationToken2.default.none) {
-    return this.client.send(this.queryTranslator.translate(this), cancellationToken);
-  }
 }
 exports.default = Query;
 
-},{"cancellation-token":4,"options":7}],11:[function(require,module,exports){
+},{"query-base":8}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -505,16 +552,22 @@ class Repository {
   }
 
   query() {
-    if (this.client) {
-      return queryFactory.create({
+    var query = null;
+    var queryFactory = null;
+    if (this.client && this.client.services) {
+      queryFactory = this.client.services.queryFactory;
+    }
+    if (queryFactory) {
+      query = queryFactory.create({
         client: this.client,
         path: this.path
       });
     } else {
       throw {
-        message: "Client is undefined"
+        message: "Query factoy is undefined"
       };
     }
+    return query;
   }
 
   get(parameters, cancellationToken = _cancellationToken2.default.none) {
@@ -524,11 +577,16 @@ class Repository {
           client: this.client,
           path: this.path
         }).get().setParameters(parameters).execute(cancellationToken).then(responseMessage => {
-          if (httpRequest.status >= 200 && httpRequest.status < 300) {
+          if (responseMessage.status >= 200 && responseMessage.status < 300) {
             resolve(responseMessage.content);
           } else {
-            // TODO: show validation errors
-            reject();
+            if (responseMessage.content) {
+              reject(responseMessage.content);
+            } else {
+              reject({
+                message: responseMessage.statusText
+              });
+            }
           }
         }).catch(ex => reject(ex));
       } catch (ex) {
@@ -554,18 +612,34 @@ class Repository {
     // }
   }
 
-  save(parameters, value, cancellationToken = _cancellationToken2.default.none) {}
+  save(parameters, value, cancellationToken = _cancellationToken2.default.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
-  update(parameters, value, cancellationToken = _cancellationToken2.default.none) {}
+  update(parameters, value, cancellationToken = _cancellationToken2.default.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
-  patch(parameters, value, cancellationToken = _cancellationToken2.default.none) {}
+  patch(parameters, value, cancellationToken = _cancellationToken2.default.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
-  del(parameters, value, cancellationToken = _cancellationToken2.default.none) {}
+  del(parameters, value, cancellationToken = _cancellationToken2.default.none) {
+    throw {
+      message: "Not implemented"
+    };
+  }
 
 }
 exports.default = Repository;
 
-},{"cancellation-token":4,"options":7}],12:[function(require,module,exports){
+},{"cancellation-token":4,"options":7}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -609,7 +683,7 @@ class RestBulkRequestMessage {
 }
 exports.default = RestBulkRequestMessage;
 
-},{"options":7,"rest-request-message":15}],13:[function(require,module,exports){
+},{"options":7,"rest-request-message":16}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -635,7 +709,7 @@ class RestBulkResponseMessage {
 }
 exports.default = RestBulkResponseMessage;
 
-},{"options":7}],14:[function(require,module,exports){
+},{"options":7}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -831,7 +905,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":8,"query-translator":9,"rest-bulk-request-message":12,"rest-bulk-response-message":13,"rest-request-message":15,"rest-response-message":16}],15:[function(require,module,exports){
+},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-request-message":16,"rest-response-message":17}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -861,7 +935,7 @@ class RestRequestMessage {
 }
 exports.default = RestRequestMessage;
 
-},{"options":7}],16:[function(require,module,exports){
+},{"options":7}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -888,13 +962,13 @@ class RestResponseMessage {
 }
 exports.default = RestResponseMessage;
 
-},{"options":7}],17:[function(require,module,exports){
+},{"options":7}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = undefined;
 
 var _cancellationToken = require('cancellation-token');
 
@@ -927,6 +1001,10 @@ var _restBulkResponseMessage2 = _interopRequireDefault(_restBulkResponseMessage)
 var _batch = require('batch');
 
 var _batch2 = _interopRequireDefault(_batch);
+
+var _queryBase = require('query-base');
+
+var _queryBase2 = _interopRequireDefault(_queryBase);
 
 var _query = require('query');
 
@@ -962,6 +1040,7 @@ exports.RestResponseMessage = _restResponseMessage2.default;
 exports.RestBulkRequestMessage = _restBulkRequestMessage2.default;
 exports.RestBulkResponseMessage = _restBulkResponseMessage2.default;
 exports.Batch = _batch2.default;
+exports.QueryBase = _queryBase2.default;
 exports.Query = _query2.default;
 exports.Repository = _repository2.default;
 exports.MediaTypeFormatter = _mediaTypeFormatter2.default;
@@ -969,7 +1048,7 @@ exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":10,"query-factory":8,"query-translator":9,"repository":11,"rest-bulk-request-message":12,"rest-bulk-response-message":13,"rest-client":14,"rest-request-message":15,"rest-response-message":16}]},{},[17])(17)
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":15,"rest-request-message":16,"rest-response-message":17}]},{},[18])(18)
 });
 
 
