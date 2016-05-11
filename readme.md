@@ -51,7 +51,7 @@ Server response
             "username": "tom"
         }
     ]
-    
+
 ## CRUD
 
 ### repository.get(id, callback)
@@ -163,3 +163,5 @@ bellow.
           console.error(ex.message || ex);
         }
       });
+
+#Sandbox

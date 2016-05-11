@@ -313,6 +313,60 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _query = require('query');
+
+var _query2 = _interopRequireDefault(_query);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class QueryFactory {
+
+  create(options) {
+    return new _query2.default(options);
+  }
+
+}
+exports.default = QueryFactory;
+
+},{"query":10}],9:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+class QueryTranslator {
+
+  constructor() {}
+
+  translate(query) {
+    var requestMessage = null;
+    if (query) {
+      // TODO: route has to build here
+      requestMessage = new RestRequestMessage({
+        method: query.method,
+        path: query.path,
+        headers: query.headers,
+        content: query.content,
+        timeout: query.timeout
+      });
+    } else {
+      throw {
+        message: "Parameter 'query' is not passed to the method 'translate'"
+      };
+    }
+    return requestMessage;
+  }
+
+}
+exports.default = QueryTranslator;
+
+},{}],10:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
@@ -320,10 +374,6 @@ var _options2 = _interopRequireDefault(_options);
 var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
-
-var _restRequestMessage = require('rest-request-message');
-
-var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -343,7 +393,7 @@ class Query {
   setMethod(value) {
     if (!value) {
       throw {
-        message: "Parameter 'value' is passed to the method 'setMethod'"
+        message: "Parameter 'value' is not passed to the method 'setMethod'"
       };
     }
     this.method = value;
@@ -353,7 +403,7 @@ class Query {
   setPath(value) {
     if (!value) {
       throw {
-        message: "Parameter 'value' is passed to the method 'setPath'"
+        message: "Parameter 'value' is not passed to the method 'setPath'"
       };
     }
     this.path = value;
@@ -423,37 +473,25 @@ class Query {
   }
 
   execute(cancellationToken = _cancellationToken2.default.none) {
-    // TODO: route has to build here
-    var requestMessage = new _restRequestMessage2.default({
-      method: this.method,
-      path: this.path,
-      headers: this.headers,
-      content: this.content,
-      timeout: this.timeout
-    });
-    return this.client.send(requestMessage, cancellationToken);
+    return this.client.send(this.queryTranslator.translate(this), cancellationToken);
   }
 }
 exports.default = Query;
 
-},{"cancellation-token":4,"options":7,"rest-request-message":13}],9:[function(require,module,exports){
-'use strict';
+},{"cancellation-token":4,"options":7}],11:[function(require,module,exports){
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _cancellationToken = require('cancellation-token');
+var _cancellationToken = require("cancellation-token");
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _options = require('options');
+var _options = require("options");
 
 var _options2 = _interopRequireDefault(_options);
-
-var _query = require('query');
-
-var _query2 = _interopRequireDefault(_query);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -468,7 +506,7 @@ class Repository {
 
   query() {
     if (this.client) {
-      return new _query2.default({
+      return queryFactory.create({
         client: this.client,
         path: this.path
       });
@@ -487,18 +525,7 @@ class Repository {
           path: this.path
         }).get().setParameters(parameters).execute(cancellationToken).then(responseMessage => {
           if (httpRequest.status >= 200 && httpRequest.status < 300) {
-            var value = responseMessage.content;
-            if (this.objectType) {
-              if (responseMessage.content) {
-                // TODO: ObjectFormatter???
-                if (responseMessage.content instanceof Array) {
-                  // TODO: convert...
-                } else {
-                    // TODO: convert...
-                  }
-              }
-            }
-            resolve(value);
+            resolve(responseMessage.content);
           } else {
             // TODO: show validation errors
             reject();
@@ -508,7 +535,6 @@ class Repository {
         reject(ex);
       }
     });
-
     // if (!BatchExecutionContext.current) {
     //   return this.client.send(requestMessage);
     // } else {
@@ -539,7 +565,7 @@ class Repository {
 }
 exports.default = Repository;
 
-},{"cancellation-token":4,"options":7,"query":8}],10:[function(require,module,exports){
+},{"cancellation-token":4,"options":7}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -583,7 +609,7 @@ class RestBulkRequestMessage {
 }
 exports.default = RestBulkRequestMessage;
 
-},{"options":7,"rest-request-message":13}],11:[function(require,module,exports){
+},{"options":7,"rest-request-message":15}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -609,7 +635,7 @@ class RestBulkResponseMessage {
 }
 exports.default = RestBulkResponseMessage;
 
-},{"options":7}],12:[function(require,module,exports){
+},{"options":7}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -644,6 +670,14 @@ var _jsonMediaTypeFormatter = require('json-media-type-formatter');
 
 var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
 
+var _queryFactory = require('query-factory');
+
+var _queryFactory2 = _interopRequireDefault(_queryFactory);
+
+var _queryTranslator = require('query-translator');
+
+var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const DONE = 4;
@@ -656,6 +690,11 @@ class RestClient {
     this.port = 80;
     this.timeout = 30;
     this.mediaTypeFormatters = [new _jsonMediaTypeFormatter2.default()];
+    this.services = {
+      queryFactory: new _queryFactory2.default(),
+      queryTranslator: new _queryTranslator2.default()
+    };
+    this.interceptors = [];
     _options2.default.extend(this, options);
   }
 
@@ -792,7 +831,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"rest-bulk-request-message":10,"rest-bulk-response-message":11,"rest-request-message":13,"rest-response-message":14}],13:[function(require,module,exports){
+},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":8,"query-translator":9,"rest-bulk-request-message":12,"rest-bulk-response-message":13,"rest-request-message":15,"rest-response-message":16}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -822,7 +861,7 @@ class RestRequestMessage {
 }
 exports.default = RestRequestMessage;
 
-},{"options":7}],14:[function(require,module,exports){
+},{"options":7}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -849,13 +888,13 @@ class RestResponseMessage {
 }
 exports.default = RestResponseMessage;
 
-},{"options":7}],15:[function(require,module,exports){
+},{"options":7}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = undefined;
 
 var _cancellationToken = require('cancellation-token');
 
@@ -905,6 +944,14 @@ var _jsonMediaTypeFormatter = require('json-media-type-formatter');
 
 var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
 
+var _queryFactory = require('query-factory');
+
+var _queryFactory2 = _interopRequireDefault(_queryFactory);
+
+var _queryTranslator = require('query-translator');
+
+var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.CancellationToken = _cancellationToken2.default;
@@ -919,8 +966,10 @@ exports.Query = _query2.default;
 exports.Repository = _repository2.default;
 exports.MediaTypeFormatter = _mediaTypeFormatter2.default;
 exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
+exports.QueryFactory = _queryFactory2.default;
+exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":8,"repository":9,"rest-bulk-request-message":10,"rest-bulk-response-message":11,"rest-client":12,"rest-request-message":13,"rest-response-message":14}]},{},[15])(15)
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":10,"query-factory":8,"query-translator":9,"repository":11,"rest-bulk-request-message":12,"rest-bulk-response-message":13,"rest-client":14,"rest-request-message":15,"rest-response-message":16}]},{},[17])(17)
 });
 
 
