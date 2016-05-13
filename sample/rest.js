@@ -457,13 +457,13 @@ class QueryFactory {
 exports.default = QueryFactory;
 
 },{"query":11}],10:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _restRequestMessage = require("rest-request-message");
+var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
@@ -471,15 +471,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class QueryTranslator {
 
-  constructor() {}
+  constructor() {
+    this._parameterNameCache = {};
+  }
 
   translate(query) {
     var requestMessage = null;
     if (query) {
-      // TODO: route has to build here
       requestMessage = new _restRequestMessage2.default({
         method: query.method,
-        path: query.path,
+        path: this.getPath(query),
+        queryString: this.getQueryString(query),
         headers: query.headers,
         content: query.content,
         timeout: query.timeout
@@ -490,6 +492,58 @@ class QueryTranslator {
       };
     }
     return requestMessage;
+  }
+
+  getPath(query) {
+    var path = null;
+    if (query) {
+      path = query.path;
+      var parameterNames = this.getParameterNames(query.path);
+      if (parameterNames && parameterNames.length > 0) {
+        parameterNames.forEach(parameterName => {
+          if (query.parameters) {
+            if (parameterName in query.parameters) {
+              path = path.replace(`{${ parameterName }}`, query.parameters[parameterName]);
+            } else {
+              path = path.replace(`/{${ parameterName }}`, '');
+            }
+          }
+        });
+      }
+    }
+    return path;
+  }
+
+  getQueryString(query) {
+    var queryString = '';
+    if (query && query.parameters) {
+      var pathParameterNames = this.getParameterNames(query.path);
+      for (var parameterName in query.parameters) {
+        if (!pathParameterNames || pathParameterNames.indexOf(parameterName) === -1) {
+          if (query.parameters[parameterName] !== null && query.parameters[parameterName] !== undefined) {
+            if (queryString) {
+              queryString += '&';
+            }
+            queryString += `${ parameterName }=${ query.parameters[parameterName] }`;
+          }
+        }
+      }
+    }
+    return queryString;
+  }
+
+  getParameterNames(path) {
+    var names = null;
+    if (path) {
+      var result = path.match(/\{(.*?)\}/g);
+      if (result && result.length > 0) {
+        names = [];
+        result.forEach(text => {
+          names.push(text.substring(1, text.length - 1));
+        });
+      }
+    }
+    return names;
   }
 
 }
@@ -822,6 +876,9 @@ class RestClient {
       requestMessage.path = '/' + requestMessage.path;
     }
     url += requestMessage.path;
+    if (requestMessage.queryString) {
+      url += '?' + requestMessage.queryString;
+    }
     httpRequest.open(requestMessage.method, url, true);
     httpRequest.timeout = this.timeout;
     if ('timeout' in requestMessage && requestMessage.timeout > 0) {
@@ -851,6 +908,7 @@ class RestClient {
           }
           var headers = this._getResponseHeaders(httpRequest);
           resolve(new _restResponseMessage2.default({
+            requestMessage: requestMessage,
             status: httpRequest.status,
             statusText: httpRequest.statusText,
             headers: headers,
@@ -923,6 +981,7 @@ class RestRequestMessage {
   constructor(options) {
     this.method = null;
     this.path = null;
+    this.queryString = null;
     this.headers = null;
     this.accept = null;
     this.content = null;
@@ -951,6 +1010,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class RestResponseMessage {
 
   constructor(options) {
+    this.requestMessage = null;
     this.status = null;
     this.statusText = null;
     this.headers = null;

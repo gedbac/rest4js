@@ -78,6 +78,9 @@ export default class RestClient {
       requestMessage.path = '/' + requestMessage.path;
     }
     url += requestMessage.path;
+    if (requestMessage.queryString) {
+      url += '?' + requestMessage.queryString;
+    }
     httpRequest.open(requestMessage.method, url, true);
     httpRequest.timeout = this.timeout;
     if ('timeout' in requestMessage && requestMessage.timeout > 0) {
@@ -107,6 +110,7 @@ export default class RestClient {
           }
           var headers = this._getResponseHeaders(httpRequest);
           resolve(new RestResponseMessage({
+            requestMessage: requestMessage,
             status: httpRequest.status,
             statusText: httpRequest.statusText,
             headers: headers,

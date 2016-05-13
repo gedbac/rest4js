@@ -1,7 +1,7 @@
-describe("A suite", function() {
-  it("contains spec with an expectation", function() {
-    expect(true).toBe(true);
-  });
+// describe("A suite", function() {
+//   it("contains spec with an expectation", function() {
+//     expect(true).toBe(true);
+//   });
   /*it("contains spec with an expectation", function(done) {
     var dataSource = new rest.DataSource({
       protocol: 'https',
@@ -17,4 +17,4 @@ describe("A suite", function() {
       done();
     });
   });*/
-});
+//});

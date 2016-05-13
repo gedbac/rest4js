@@ -5,6 +5,7 @@ export default class RestRequestMessage {
   constructor(options) {
     this.method = null;
     this.path = null;
+    this.queryString = null;
     this.headers = null;
     this.accept = null;
     this.content = null;
