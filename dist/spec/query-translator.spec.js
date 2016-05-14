@@ -1,3 +1,5 @@
+"use strict";
+
 describe("Query translator", () => {
 
   var queryTranslator = null;
@@ -55,7 +57,7 @@ describe("Query translator", () => {
     expect(path).toEqual('name=Tom&skip=0&take=10');
   });
 
-  it ("should translate query to request message", () => {
+  it("should translate query to request message", () => {
     var query = new rest.Query({
       method: 'GET',
       path: '/api/users',
@@ -69,5 +71,5 @@ describe("Query translator", () => {
     expect(requestMessage.path).toEqual('/api/users');
     expect(requestMessage.queryString).toEqual('name=Tom');
   });
-
 });
+//# sourceMappingURL=query-translator.spec.js.map

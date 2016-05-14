@@ -1,1 +1,0 @@
-// TODO: Should be implemented using event listeners

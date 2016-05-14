@@ -3,7 +3,7 @@
 [![devDependency Status](https://david-dm.org/gedbac/rest4js/dev-status.svg)](https://david-dm.org/gedbac/rest4js#info=devDependencies)
 [![Build Status](https://secure.travis-ci.org/gedbac/rest4js.svg)](http://travis-ci.org/gedbac/rest4js)
 
-Stability: Under development
+__Stability__: Under Development
 
 Fetch data from your RESTfull web service in the easy way.
 
@@ -54,7 +54,7 @@ Server response
 
 ## CRUD
 
-### repository.get(parameters, cancellationToken)
+### repository.get(parameters, cancellationToken): Promise
 
 You can easily fetch data by given parameters.
 
@@ -108,6 +108,8 @@ Sample output from the example:
 
 ## Queries
 
+There is an option to build queries.
+
     var userRepository = new rest.Repository({
       client: client,
       path: '/api/users/:id'
@@ -127,6 +129,33 @@ Sample output from the example:
         .catch(ex => {
 
         });
+
+If you are not confortable with current query API or something is missing in it, you can easily extend it.
+You need to create your own query class and inherit it from *QueryBase or Query. Look bellow to the example how to do it.
+
+    class MyQuery inhertis Query {
+
+      include(fields) {
+        return this.setParameter('include', fields);
+      }
+
+    }
+
+Also query factory class has to be replaced.
+
+    class MyQueryFactory {
+
+      create(options) {
+        return new MyQuery(options);
+      }
+
+    }
+
+After creating your own query factory, you have to register it, so that new custom queries could be used.
+
+    client.services.queryFactory = new MyQueryFactory();
+
+Now you are ready to go.
 
 ## Cancellation
 
