@@ -1,4 +1,5 @@
 import Options from 'options';
+import RestClientError from 'rest-client-error';
 
 export default class MediaTypeFormatter {
 
@@ -17,15 +18,15 @@ export default class MediaTypeFormatter {
   }
 
   read(content, objectType) {
-    throw new {
+    throw new RestClientError({
       message: "Method 'read' is not supported for class 'MediaTypeFormatter'"
-    };
+    });
   }
 
   write(value) {
-    throw new {
+    throw new RestClientError({
       message: "Method 'write' is not supported for class 'MediaTypeFormatter'"
-    };
+    });
   }
 
 }

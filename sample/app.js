@@ -1,6 +1,7 @@
-var http = require('http'),
-    fs = require("fs"),
-    path = require('path');
+const http = require('http');
+const fs = require("fs");
+const path = require('path');
+const zlib = require('zlib');
 
 http.createServer((request, response) => {
   console.log(`${request.method} ${request.url} HTTP/1.1`);
@@ -20,7 +21,16 @@ http.createServer((request, response) => {
         },{
           id: 2,
           username: "tom"
-        }], null, 4);
+        }]/*, null, 4*/);
+
+        // response.setHeader('Content-Encoding', 'gzip');
+        // var buffer = new Buffer(content, 'utf-8');
+        // zlib.gzip(buffer, (error, result) => {
+        //   if (!error) {
+        //     response.end(result);
+        //   }
+        // });
+
         response.end(content, 'utf-8');
       } else {
         response.statusCode = 404;

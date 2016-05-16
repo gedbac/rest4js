@@ -13,8 +13,10 @@ import MediaTypeFormatter from 'media-type-formatter';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
 import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
+import RestClientError from 'rest-client-error';
 
 export {
+  RestClientError,
   CancellationToken,
   CancellationTokenSource,
   RestClient,

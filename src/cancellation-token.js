@@ -1,3 +1,5 @@
+import RestClientError from 'rest-client-error';
+
 export default class CancellationToken {
 
   constructor(canceled = false) {
@@ -11,9 +13,9 @@ export default class CancellationToken {
 
   throwIfCanceled() {
     if (this.canceled) {
-      throw {
+      throw new RestClientError({
         message: "Operation has been canceled"
-      };
+      });
     }
   }
 }

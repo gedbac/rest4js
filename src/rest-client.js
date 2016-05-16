@@ -7,6 +7,7 @@ import RestBulkResponseMessage from 'rest-bulk-response-message';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
 import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
+import RestClientError from 'rest-client-error';
 
 const DONE = 4;
 
@@ -49,9 +50,9 @@ export default class RestClient {
         } else if (requestMessage && requestMessage instanceof RestBulkRequestMessage) {
           this._sendBulkMessage(requestMessage, httpRequest, resolve, reject);
         } else {
-          throw {
+          throw RestClientError({
             message: "Message is undefined or it's type is invalid"
-          };
+          });
         }
       } catch (ex) {
         reject(ex);
@@ -118,9 +119,9 @@ export default class RestClient {
             contentType: contentType
           }));
         } else {
-          reject({
+          reject(RestClientError({
             message: "Failed to connect to the server"
-          });
+          }));
         }
       }
     };

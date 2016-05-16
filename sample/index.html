@@ -20,7 +20,8 @@
             }
           }
           var client = new rest.RestClient({
-            port: 8080
+            port: 8080,
+            timeout: 0
           });
           var cancellationTokenSource = new rest.CancellationTokenSource();
           // var requestMessage = new rest.RestRequestMessage({
@@ -42,6 +43,8 @@
           //   });
           // TOOD: Cancellation is not work as expected...
           //cancellationTokenSource.cancelAfter(0);
+
+          //httpRequest.setRequestHeader('Accept-Encoding', 'gzip,deflate');
 
           var usersRepository = new rest.Repository({
             client: client,

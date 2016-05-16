@@ -1,5 +1,6 @@
 import Options from 'options';
 import RestRequestMessage from 'rest-request-message';
+import RestClientError from 'rest-client-error';
 
 export default class RestBulkRequestMessage {
 
@@ -18,9 +19,9 @@ export default class RestBulkRequestMessage {
         this.requestMessages.push(message);
       }
     } else {
-      throw {
+      throw RestClientError({
         message: "Message is undefined or it's type is invalid"
-      };
+      });
     }
     return this;
   }

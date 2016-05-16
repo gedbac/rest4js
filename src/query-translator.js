@@ -1,4 +1,5 @@
 import RestRequestMessage from 'rest-request-message';
+import RestClientError from 'rest-client-error';
 
 export default class QueryTranslator {
 
@@ -18,9 +19,9 @@ export default class QueryTranslator {
         timeout: query.timeout
       });
     } else {
-      throw {
+      throw RestClientError({
         message: "Parameter 'query' is not passed to the method 'translate'"
-      };
+      });
     }
     return requestMessage;
   }

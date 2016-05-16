@@ -1,7 +1,7 @@
 {
   "name": "rest4js",
   "description": "",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "Gediminas Backevicius <gediminas.backevicius@gmail.com>",
   "scripts": {
     "test": "gulp"
@@ -13,7 +13,7 @@
     "javascript"
   ],
   "engines": {
-    "node": ">=0.8"
+    "node": ">=4.0"
   },
   "devDependencies": {
     "babel-plugin-transform-es2015-modules-commonjs": "^6.7.7",

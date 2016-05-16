@@ -45,19 +45,23 @@ class BatchExecutionContext {
 exports.default = BatchExecutionContext;
 
 },{"options":7}],2:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _batchExecutionContext = require("batch-execution-context");
+var _batchExecutionContext = require('batch-execution-context');
 
 var _batchExecutionContext2 = _interopRequireDefault(_batchExecutionContext);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -71,9 +75,9 @@ class Batch {
     if (operation && typeof operation === 'function') {
       this._operations.push(operation);
     } else {
-      throw {
+      throw new _restClientError2.default({
         message: "Operation is not defined or it's type is invalid"
-      };
+      });
     }
     return this;
   }
@@ -100,7 +104,7 @@ class Batch {
 }
 exports.default = Batch;
 
-},{"batch-execution-context":1,"cancellation-token":4}],3:[function(require,module,exports){
+},{"batch-execution-context":1,"cancellation-token":4,"rest-client-error":15}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -169,6 +173,13 @@ exports.default = CancellationTokenSource;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _restClientError = require("rest-client-error");
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 class CancellationToken {
 
   constructor(canceled = false) {
@@ -182,9 +193,9 @@ class CancellationToken {
 
   throwIfCanceled() {
     if (this.canceled) {
-      throw {
+      throw new _restClientError2.default({
         message: "Operation has been canceled"
-      };
+      });
     }
   }
 }
@@ -192,7 +203,7 @@ class CancellationToken {
 exports.default = CancellationToken;
 CancellationToken.none = new CancellationToken();
 
-},{}],5:[function(require,module,exports){
+},{"rest-client-error":15}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -242,15 +253,19 @@ class JsonMediaTypeFormatter extends _mediaTypeFormatter2.default {
 exports.default = JsonMediaTypeFormatter;
 
 },{"media-type-formatter":6}],6:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _options = require("options");
+var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -271,21 +286,21 @@ class MediaTypeFormatter {
   }
 
   read(content, objectType) {
-    throw new {
+    throw new _restClientError2.default({
       message: "Method 'read' is not supported for class 'MediaTypeFormatter'"
-    }();
+    });
   }
 
   write(value) {
-    throw new {
+    throw new _restClientError2.default({
       message: "Method 'write' is not supported for class 'MediaTypeFormatter'"
-    }();
+    });
   }
 
 }
 exports.default = MediaTypeFormatter;
 
-},{"options":7}],7:[function(require,module,exports){
+},{"options":7,"rest-client-error":15}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -321,6 +336,10 @@ var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class QueryBase {
@@ -338,9 +357,9 @@ class QueryBase {
 
   setMethod(value) {
     if (!value) {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Parameter 'value' is not passed to the method 'setMethod'"
-      };
+      });
     }
     this.method = value;
     return this;
@@ -348,9 +367,9 @@ class QueryBase {
 
   setPath(value) {
     if (!value) {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Parameter 'value' is not passed to the method 'setPath'"
-      };
+      });
     }
     this.path = value;
     return this;
@@ -358,9 +377,9 @@ class QueryBase {
 
   setHeader(name, value) {
     if (!name) {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Parameter 'name' is not passed to method 'setHeader'"
-      };
+      });
     }
     this.headers[name] = value;
     return this;
@@ -373,9 +392,9 @@ class QueryBase {
 
   setParameter(name, value) {
     if (!name) {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Parameter 'name' is not passed to method 'setParameter'"
-      };
+      });
     }
     this.parameters[name] = value;
     return this;
@@ -404,9 +423,9 @@ class QueryBase {
       if (queryTranslator) {
         this.client.send(queryTranslator.translate(this), cancellationToken).then(resolve).catch(reject);
       } else {
-        reject({
+        reject(new _restClientError2.default({
           message: "Query translator is undefined"
-        });
+        }));
       }
     });
   }
@@ -434,7 +453,7 @@ class QueryBase {
 }
 exports.default = QueryBase;
 
-},{"cancellation-token":4,"options":7}],9:[function(require,module,exports){
+},{"cancellation-token":4,"options":7,"rest-client-error":15}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -467,6 +486,10 @@ var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
 
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class QueryTranslator {
@@ -487,9 +510,9 @@ class QueryTranslator {
         timeout: query.timeout
       });
     } else {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Parameter 'query' is not passed to the method 'translate'"
-      };
+      });
     }
     return requestMessage;
   }
@@ -549,7 +572,7 @@ class QueryTranslator {
 }
 exports.default = QueryTranslator;
 
-},{"rest-request-message":16}],11:[function(require,module,exports){
+},{"rest-client-error":15,"rest-request-message":17}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -568,6 +591,12 @@ class Query extends _queryBase2.default {
     super(options);
   }
 
+  // TODO: include option to sort
+
+  fields(value) {
+    return this.setParameter('fields', value);
+  }
+
   skip(value) {
     return this.setParameter('skip', value);
   }
@@ -580,19 +609,23 @@ class Query extends _queryBase2.default {
 exports.default = Query;
 
 },{"query-base":8}],12:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _cancellationToken = require("cancellation-token");
+var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _options = require("options");
+var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -617,9 +650,9 @@ class Repository {
         path: this.path
       });
     } else {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Query factoy is undefined"
-      };
+      });
     }
     return query;
   }
@@ -627,10 +660,7 @@ class Repository {
   get(parameters, cancellationToken = _cancellationToken2.default.none) {
     return new Promise((resolve, reject) => {
       try {
-        this.query({
-          client: this.client,
-          path: this.path
-        }).get().setParameters(parameters).execute(cancellationToken).then(responseMessage => {
+        this.query().get().setParameters(parameters).execute(cancellationToken).then(responseMessage => {
           if (responseMessage.status >= 200 && responseMessage.status < 300) {
             resolve(responseMessage.content);
           } else {
@@ -667,33 +697,82 @@ class Repository {
   }
 
   save(parameters, value, cancellationToken = _cancellationToken2.default.none) {
-    throw {
-      message: "Not implemented"
-    };
+    return new Promise((resolve, reject) => {
+      return this.query().save().setParameters(parameters).setContent(value).execute(cancellationToken).then(responseMessage => {
+        if (responseMessage.status >= 200 && responseMessage.status < 300) {
+          // TODO: if content, otherwise take id from location header and set id
+          resolve(responseMessage.content);
+        } else {
+          if (responseMessage.content) {
+            reject(responseMessage.content);
+          } else {
+            reject(new _restClientError2.default({
+              message: responseMessage.statusText
+            }));
+          }
+        }
+      }).catch(ex => reject(ex));
+    });
   }
 
   update(parameters, value, cancellationToken = _cancellationToken2.default.none) {
-    throw {
-      message: "Not implemented"
-    };
+    return new Promise((resolve, reject) => {
+      this.query().update().setParameters(parameters).setContent(value).execute(cancellationToken).then(responseMessage => {
+        if (responseMessage.status >= 200 && responseMessage.status < 300) {
+          resolve(responseMessage.content);
+        } else {
+          if (responseMessage.content) {
+            reject(responseMessage.content);
+          } else {
+            reject(new _restClientError2.default({
+              message: responseMessage.statusText
+            }));
+          }
+        }
+      }).catch(ex => reject(ex));
+    });
   }
 
   patch(parameters, value, cancellationToken = _cancellationToken2.default.none) {
-    throw {
-      message: "Not implemented"
-    };
+    return new Promise((resolve, reject) => {
+      this.query().patch().setParameters(parameters).setContent(value).execute(cancellationToken).then(responseMessage => {
+        if (responseMessage.status >= 200 && responseMessage.status < 300) {
+          resolve(responseMessage.content);
+        } else {
+          if (responseMessage.content) {
+            reject(responseMessage.content);
+          } else {
+            reject(new _restClientError2.default({
+              message: responseMessage.statusText
+            }));
+          }
+        }
+      }).catch(ex => reject(ex));
+    });
   }
 
-  del(parameters, value, cancellationToken = _cancellationToken2.default.none) {
-    throw {
-      message: "Not implemented"
-    };
+  del(parameters, cancellationToken = _cancellationToken2.default.none) {
+    return new Promise((resolve, reject) => {
+      this.query().del().setParameters(parameters).execute(cancellationToken).then(responseMessage => {
+        if (responseMessage.status >= 200 && responseMessage.status < 300) {
+          resolve(responseMessage.content);
+        } else {
+          if (responseMessage.content) {
+            reject(responseMessage.content);
+          } else {
+            reject(new _restClientError2.default({
+              message: responseMessage.statusText
+            }));
+          }
+        }
+      }).catch(ex => reject(ex));
+    });
   }
 
 }
 exports.default = Repository;
 
-},{"cancellation-token":4,"options":7}],13:[function(require,module,exports){
+},{"cancellation-token":4,"options":7,"rest-client-error":15}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -707,6 +786,10 @@ var _options2 = _interopRequireDefault(_options);
 var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -727,9 +810,9 @@ class RestBulkRequestMessage {
         this.requestMessages.push(message);
       }
     } else {
-      throw {
+      throw (0, _restClientError2.default)({
         message: "Message is undefined or it's type is invalid"
-      };
+      });
     }
     return this;
   }
@@ -737,7 +820,7 @@ class RestBulkRequestMessage {
 }
 exports.default = RestBulkRequestMessage;
 
-},{"options":7,"rest-request-message":16}],14:[function(require,module,exports){
+},{"options":7,"rest-client-error":15,"rest-request-message":17}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -764,6 +847,90 @@ class RestBulkResponseMessage {
 exports.default = RestBulkResponseMessage;
 
 },{"options":7}],15:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RestClientError = undefined;
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RestClientError {
+
+  constructor(options) {
+    this.name = 'RestClientError';
+    this.stack = null;
+    this.message = "A rest error has occurred.";
+    var lines, i, tmp;
+    if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Chrome') !== -1 || typeof navigator === 'undefined') {
+      lines = new Error().stack.split('\n');
+      if (lines && lines.length > 2) {
+        tmp = [];
+        for (i = 2; i < lines.length; i++) {
+          if (lines[i]) {
+            tmp.push(lines[i].trim());
+          }
+        }
+        this.stack = tmp.join('\n');
+      }
+    } else if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1) {
+      lines = new Error().stack.split('\n');
+      if (lines && lines.length > 1) {
+        tmp = [];
+        for (i = 1; i < lines.length; i++) {
+          if (lines[i]) {
+            tmp.push('at ' + lines[i].trim().replace('@', ' (') + ')');
+          }
+        }
+        this.stack = tmp.join('\n');
+      }
+    } else if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Trident') !== -1) {
+      try {
+        throw new Error();
+      } catch (error) {
+        if ('stack' in error) {
+          lines = error.stack.split('\n');
+          if (lines && lines.length > 2) {
+            tmp = [];
+            for (i = 2; i < lines.length; i++) {
+              if (lines[i]) {
+                tmp.push(lines[i].trim());
+              }
+            }
+            this.stack = tmp.join('\n');
+          }
+        } else {
+          this.stack = '';
+        }
+      }
+    } else {
+      var error = new Error();
+      if ('stack' in error) {
+        this.stack = error.stack;
+      } else {
+        this.stack = '';
+      }
+    }
+    _options2.default.extend(this, options);
+  }
+
+  toString() {
+    var text = this.name + ': ' + this.message;
+    if (this.stack) {
+      text += '\n\t' + this.stack.replace(/\n/g, '\n\t');
+    }
+    return text;
+  }
+
+}
+exports.RestClientError = RestClientError;
+
+},{"options":7}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -806,6 +973,10 @@ var _queryTranslator = require('query-translator');
 
 var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
 
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const DONE = 4;
@@ -847,9 +1018,9 @@ class RestClient {
         } else if (requestMessage && requestMessage instanceof _restBulkRequestMessage2.default) {
           this._sendBulkMessage(requestMessage, httpRequest, resolve, reject);
         } else {
-          throw {
+          throw (0, _restClientError2.default)({
             message: "Message is undefined or it's type is invalid"
-          };
+          });
         }
       } catch (ex) {
         reject(ex);
@@ -916,9 +1087,9 @@ class RestClient {
             contentType: contentType
           }));
         } else {
-          reject({
+          reject((0, _restClientError2.default)({
             message: "Failed to connect to the server"
-          });
+          }));
         }
       }
     };
@@ -963,7 +1134,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-request-message":16,"rest-response-message":17}],16:[function(require,module,exports){
+},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client-error":15,"rest-request-message":17,"rest-response-message":18}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -994,7 +1165,7 @@ class RestRequestMessage {
 }
 exports.default = RestRequestMessage;
 
-},{"options":7}],17:[function(require,module,exports){
+},{"options":7}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1022,13 +1193,13 @@ class RestResponseMessage {
 }
 exports.default = RestResponseMessage;
 
-},{"options":7}],18:[function(require,module,exports){
+},{"options":7}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = exports.RestClientError = undefined;
 
 var _cancellationToken = require('cancellation-token');
 
@@ -1090,8 +1261,13 @@ var _queryTranslator = require('query-translator');
 
 var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
 
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+exports.RestClientError = _restClientError2.default;
 exports.CancellationToken = _cancellationToken2.default;
 exports.CancellationTokenSource = _cancellationTokenSource2.default;
 exports.RestClient = _restClient2.default;
@@ -1108,7 +1284,7 @@ exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":15,"rest-request-message":16,"rest-response-message":17}]},{},[18])(18)
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-request-message":17,"rest-response-message":18}]},{},[19])(19)
 });
 
 

@@ -6,6 +6,12 @@ export default class Query extends QueryBase {
     super(options);
   }
 
+  // TODO: include option to sort
+
+  fields(value) {
+    return this.setParameter('fields', value);
+  }
+
   skip(value) {
     return this.setParameter('skip', value);
   }

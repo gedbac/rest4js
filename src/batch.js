@@ -1,5 +1,6 @@
-import CancellationToken from "cancellation-token";
-import BatchExecutionContext from "batch-execution-context";
+import CancellationToken from 'cancellation-token';
+import BatchExecutionContext from 'batch-execution-context';
+import RestClientError from 'rest-client-error';
 
 export default class Batch {
 
@@ -11,9 +12,9 @@ export default class Batch {
     if (operation && typeof operation === 'function') {
       this._operations.push(operation);
     } else {
-      throw {
+      throw new RestClientError({
         message: "Operation is not defined or it's type is invalid"
-      };
+      });
     }
     return this;
   }

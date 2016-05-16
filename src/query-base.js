@@ -1,5 +1,6 @@
 import Options from 'options';
 import CancellationToken from 'cancellation-token';
+import RestClientError from 'rest-client-error';
 
 export default class QueryBase {
 
@@ -16,9 +17,9 @@ export default class QueryBase {
 
   setMethod(value) {
     if (!value) {
-      throw {
+      throw RestClientError({
         message: "Parameter 'value' is not passed to the method 'setMethod'"
-      };
+      });
     }
     this.method = value;
     return this;
@@ -26,9 +27,9 @@ export default class QueryBase {
 
   setPath(value) {
     if (!value) {
-      throw {
+      throw RestClientError({
         message: "Parameter 'value' is not passed to the method 'setPath'"
-      };
+      });
     }
     this.path = value;
     return this;
@@ -36,9 +37,9 @@ export default class QueryBase {
 
   setHeader(name, value) {
     if (!name) {
-      throw {
+      throw RestClientError({
         message: "Parameter 'name' is not passed to method 'setHeader'"
-      };
+      });
     }
     this.headers[name] = value;
     return this;
@@ -51,9 +52,9 @@ export default class QueryBase {
 
   setParameter(name, value) {
     if (!name) {
-      throw {
+      throw RestClientError({
         message: "Parameter 'name' is not passed to method 'setParameter'"
-      };
+      });
     }
     this.parameters[name] = value;
     return this;
@@ -85,9 +86,9 @@ export default class QueryBase {
           .then(resolve)
           .catch(reject);
       } else {
-        reject({
+        reject(new RestClientError({
           message: "Query translator is undefined"
-        });
+        }));
       }
     });
   }

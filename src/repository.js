@@ -1,5 +1,6 @@
 import CancellationToken from "cancellation-token";
 import Options from 'options';
+import RestClientError from 'rest-client-error';
 
 export default class Repository {
 
@@ -22,9 +23,9 @@ export default class Repository {
         path: this.path
       });
     } else {
-      throw {
+      throw RestClientError({
         message: "Query factoy is undefined"
-      };
+      });
     }
     return query;
   }
@@ -32,11 +33,7 @@ export default class Repository {
   get(parameters, cancellationToken = CancellationToken.none) {
     return new Promise((resolve, reject) => {
       try {
-        this
-          .query({
-            client: this.client,
-            path: this.path
-          })
+        this.query()
           .get()
             .setParameters(parameters)
             .execute(cancellationToken)
@@ -78,27 +75,99 @@ export default class Repository {
   }
 
   save(parameters, value, cancellationToken = CancellationToken.none) {
-    throw {
-      message: "Not implemented"
-    };
+    return new Promise((resolve, reject) => {
+      return this.query()
+        .save()
+          .setParameters(parameters)
+          .setContent(value)
+          .execute(cancellationToken)
+          .then(responseMessage => {
+            if (responseMessage.status >= 200 && responseMessage.status < 300) {
+              // TODO: if content, otherwise take id from location header and set id
+              resolve(responseMessage.content);
+            } else {
+              if (responseMessage.content) {
+                reject(responseMessage.content);
+              } else {
+                reject(new RestClientError({
+                  message: responseMessage.statusText
+                }));
+              }
+            }
+          })
+          .catch(ex => reject(ex));
+    });
   }
 
   update(parameters, value, cancellationToken = CancellationToken.none) {
-    throw {
-      message: "Not implemented"
-    };
+    return new Promise((resolve, reject) => {
+      this.query()
+        .update()
+          .setParameters(parameters)
+          .setContent(value)
+          .execute(cancellationToken)
+          .then(responseMessage => {
+            if (responseMessage.status >= 200 && responseMessage.status < 300) {
+              resolve(responseMessage.content);
+            } else {
+              if (responseMessage.content) {
+                reject(responseMessage.content);
+              } else {
+                reject(new RestClientError({
+                  message: responseMessage.statusText
+                }));
+              }
+            }
+          })
+          .catch(ex => reject(ex));
+    });
   }
 
   patch(parameters, value, cancellationToken = CancellationToken.none) {
-    throw {
-      message: "Not implemented"
-    };
+    return new Promise((resolve, reject) => {
+      this.query()
+        .patch()
+          .setParameters(parameters)
+          .setContent(value)
+          .execute(cancellationToken)
+          .then(responseMessage => {
+            if (responseMessage.status >= 200 && responseMessage.status < 300) {
+              resolve(responseMessage.content);
+            } else {
+              if (responseMessage.content) {
+                reject(responseMessage.content);
+              } else {
+                reject(new RestClientError({
+                  message: responseMessage.statusText
+                }));
+              }
+            }
+          })
+          .catch(ex => reject(ex));
+    });
   }
 
-  del(parameters, value, cancellationToken = CancellationToken.none) {
-    throw {
-      message: "Not implemented"
-    };
+  del(parameters, cancellationToken = CancellationToken.none) {
+    return new Promise((resolve, reject) => {
+      this.query()
+        .del()
+          .setParameters(parameters)
+          .execute(cancellationToken)
+          .then(responseMessage => {
+            if (responseMessage.status >= 200 && responseMessage.status < 300) {
+              resolve(responseMessage.content);
+            } else {
+              if (responseMessage.content) {
+                reject(responseMessage.content);
+              } else {
+                reject(new RestClientError({
+                  message: responseMessage.statusText
+                }));
+              }
+            }
+          })
+          .catch(ex => reject(ex));
+    });
   }
 
 }
