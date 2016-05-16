@@ -12,7 +12,7 @@ export default class RestRequestMessage {
     this.contentType = null;
     this.objectType = null;
     this.timeout = null;
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
 }

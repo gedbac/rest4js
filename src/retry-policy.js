@@ -1,7 +1,9 @@
+import Options from 'options';
+
 export default class RetryPolicy {
 
-  constructor() {
-
+  constructor(options) {
+    Options.assign(this, options);
   }
 
 }

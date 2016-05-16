@@ -57,7 +57,7 @@ export class RestClientError {
         this.stack = '';
       }
     }
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   toString() {

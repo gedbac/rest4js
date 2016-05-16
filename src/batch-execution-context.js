@@ -6,7 +6,7 @@ export default class BatchExecutionContext {
     this.batch = null;
     this.client = null;
     this.requestMessages = [];
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   static get current() {

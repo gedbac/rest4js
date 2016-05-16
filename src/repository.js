@@ -8,7 +8,7 @@ export default class Repository {
     this.client = null;
     this.path = null;
     this.objectType = null;
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   query() {

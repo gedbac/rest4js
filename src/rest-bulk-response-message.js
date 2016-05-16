@@ -7,7 +7,7 @@ export default class RestBulkResponseMessage {
     this.statusText = null;
     this.headers = null;
     this.responseMessages = [];
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
 }

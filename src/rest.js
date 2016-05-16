@@ -1,3 +1,5 @@
+import RestClientError from 'rest-client-error';
+import Options from 'options';
 import CancellationToken from 'cancellation-token';
 import CancellationTokenSource from 'cancellation-token-source';
 import RestClient from 'rest-client';
@@ -13,10 +15,10 @@ import MediaTypeFormatter from 'media-type-formatter';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
 import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
-import RestClientError from 'rest-client-error';
 
 export {
   RestClientError,
+  Options,
   CancellationToken,
   CancellationTokenSource,
   RestClient,

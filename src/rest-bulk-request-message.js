@@ -10,7 +10,7 @@ export default class RestBulkRequestMessage {
     this.headers = null;
     this.timeout = null;
     this.requestMessages = [];
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   add(message) {

@@ -26,7 +26,7 @@ export default class RestClient {
       queryTranslator: new QueryTranslator()
     };
     this.interceptors = [];
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   send(requestMessage, cancellationToken = CancellationToken.none) {
@@ -90,6 +90,7 @@ export default class RestClient {
     if (!requestMessage.accept) {
       requestMessage.accept = 'application/json';
     }
+    httpRequest.setRequestHeader('Cache-Control', 'no-cache');
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     if (requestMessage.headers) {
       for (var headerName in requestMessage.headers) {

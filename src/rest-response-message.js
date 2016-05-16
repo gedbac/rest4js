@@ -9,7 +9,7 @@ export default class RestResponseMessage {
     this.headers = null;
     this.content = null;
     this.contentType = null;
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
 }

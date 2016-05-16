@@ -17,7 +17,7 @@ class BatchExecutionContext {
     this.batch = null;
     this.client = null;
     this.requestMessages = [];
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   static get current() {
@@ -274,7 +274,7 @@ class MediaTypeFormatter {
   constructor(options) {
     this.mediaTypes = [];
     this.defaultMediaType = null;
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   canReadType(objectType) {
@@ -308,7 +308,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 class Options {
 
-  static extend(target, options) {
+  static assign(target, options) {
     if (target && options) {
       for (var propertyName in options) {
         if (propertyName in target) {
@@ -352,7 +352,7 @@ class QueryBase {
     this.content = null;
     this.parameters = {};
     this.timeout = 0;
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   setMethod(value) {
@@ -635,7 +635,7 @@ class Repository {
     this.client = null;
     this.path = null;
     this.objectType = null;
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   query() {
@@ -801,7 +801,7 @@ class RestBulkRequestMessage {
     this.headers = null;
     this.timeout = null;
     this.requestMessages = [];
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   add(message) {
@@ -840,7 +840,7 @@ class RestBulkResponseMessage {
     this.statusText = null;
     this.headers = null;
     this.responseMessages = [];
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
 }
@@ -916,7 +916,7 @@ class RestClientError {
         this.stack = '';
       }
     }
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   toString() {
@@ -994,7 +994,7 @@ class RestClient {
       queryTranslator: new _queryTranslator2.default()
     };
     this.interceptors = [];
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
   send(requestMessage, cancellationToken = _cancellationToken2.default.none) {
@@ -1058,6 +1058,7 @@ class RestClient {
     if (!requestMessage.accept) {
       requestMessage.accept = 'application/json';
     }
+    httpRequest.setRequestHeader('Cache-Control', 'no-cache');
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     if (requestMessage.headers) {
       for (var headerName in requestMessage.headers) {
@@ -1159,7 +1160,7 @@ class RestRequestMessage {
     this.contentType = null;
     this.objectType = null;
     this.timeout = null;
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
 }
@@ -1187,7 +1188,7 @@ class RestResponseMessage {
     this.headers = null;
     this.content = null;
     this.contentType = null;
-    _options2.default.extend(this, options);
+    _options2.default.assign(this, options);
   }
 
 }
@@ -1199,7 +1200,15 @@ exports.default = RestResponseMessage;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = exports.RestClientError = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
 
 var _cancellationToken = require('cancellation-token');
 
@@ -1261,13 +1270,10 @@ var _queryTranslator = require('query-translator');
 
 var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
 
-var _restClientError = require('rest-client-error');
-
-var _restClientError2 = _interopRequireDefault(_restClientError);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.RestClientError = _restClientError2.default;
+exports.Options = _options2.default;
 exports.CancellationToken = _cancellationToken2.default;
 exports.CancellationTokenSource = _cancellationTokenSource2.default;
 exports.RestClient = _restClient2.default;
@@ -1284,7 +1290,7 @@ exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-request-message":17,"rest-response-message":18}]},{},[19])(19)
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-request-message":17,"rest-response-message":18}]},{},[19])(19)
 });
 
 

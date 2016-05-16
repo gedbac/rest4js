@@ -12,7 +12,7 @@ export default class QueryBase {
     this.content = null;
     this.parameters = {};
     this.timeout = 0;
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   setMethod(value) {

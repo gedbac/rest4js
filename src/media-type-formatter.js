@@ -6,7 +6,7 @@ export default class MediaTypeFormatter {
   constructor(options) {
     this.mediaTypes = [];
     this.defaultMediaType = null;
-    Options.extend(this, options);
+    Options.assign(this, options);
   }
 
   canReadType(objectType) {
