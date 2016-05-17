@@ -18,6 +18,7 @@ export default class RestClient {
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
+    this.defaultContentType = 'application/json';
     this.mediaTypeFormatters = [
       new JsonMediaTypeFormatter()
     ];
@@ -88,7 +89,7 @@ export default class RestClient {
       httpRequest.timeout = requestMessage.timeout;
     }
     if (!requestMessage.accept) {
-      requestMessage.accept = 'application/json';
+      requestMessage.accept = this.defaultContentType;
     }
     httpRequest.setRequestHeader('Cache-Control', 'no-cache');
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -99,40 +100,64 @@ export default class RestClient {
     }
     httpRequest.onreadystatechange = () => {
       if (httpRequest && httpRequest.readyState === DONE) {
-        if (httpRequest.status !== 0) {
-          var content = null;
-          var contentType = httpRequest.getResponseHeader("Content-Type");
-          if (httpRequest.responseText) {
-            var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
-            if (mediaTypeFormatter) {
-              content = mediaTypeFormatter.read(httpRequest.responseText);
-            } else {
-              content = httpRequest.responseText;
-            }
-          }
-          var headers = this._getResponseHeaders(httpRequest);
-          resolve(new RestResponseMessage({
-            requestMessage: requestMessage,
-            status: httpRequest.status,
-            statusText: httpRequest.statusText,
-            headers: headers,
-            content: content,
-            contentType: contentType
-          }));
-        } else {
-          reject(new RestClientError({
-            message: "Failed to connect to the server"
-          }));
-        }
+        this._onReceiveMessage(requestMessage, httpRequest, resolve, reject);
       }
     };
-    httpRequest.send();
+    if (requestMessage.content) {
+      var content = null;
+      var contentType = requestMessage.contentType;
+      if (contentType) {
+        contentType = this.defaultContentType;
+      }
+      var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
+      if (mediaTypeFormatter) {
+        content = mediaTypeFormatter.write(requestMessage.content);
+      } else {
+        content = requestMessage.content;
+      }
+      httpRequest.setRequestHeader('Content-Type', contentType);
+      httpRequest.send(content);
+    } else {
+      httpRequest.send();
+    }
+  }
+
+  _onReceiveMessage(requestMessage, httpRequest, resolve, reject) {
+    if (httpRequest.status !== 0) {
+      var content = null;
+      var contentType = httpRequest.getResponseHeader("Content-Type");
+      if (httpRequest.responseText) {
+        var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
+        if (mediaTypeFormatter) {
+          content = mediaTypeFormatter.read(httpRequest.responseText);
+        } else {
+          content = httpRequest.responseText;
+        }
+      }
+      var headers = this._getResponseHeaders(httpRequest);
+      resolve(new RestResponseMessage({
+        requestMessage: requestMessage,
+        status: httpRequest.status,
+        statusText: httpRequest.statusText,
+        headers: headers,
+        content: content,
+        contentType: contentType
+      }));
+    } else {
+      reject(new RestClientError({
+        message: "Failed to connect to the server"
+      }));
+    }
   }
 
   _sendBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
     setTimeout(() => {
       resolve(new RestBulkResponseMessage());
     }, 5000);
+  }
+
+  _onReceiveBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
+    // TODO: not implemented
   }
 
   _getMediaTypeFormatter(contentType) {
