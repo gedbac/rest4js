@@ -357,7 +357,7 @@ class QueryBase {
 
   setMethod(value) {
     if (!value) {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Parameter 'value' is not passed to the method 'setMethod'"
       });
     }
@@ -367,7 +367,7 @@ class QueryBase {
 
   setPath(value) {
     if (!value) {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Parameter 'value' is not passed to the method 'setPath'"
       });
     }
@@ -377,7 +377,7 @@ class QueryBase {
 
   setHeader(name, value) {
     if (!name) {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Parameter 'name' is not passed to method 'setHeader'"
       });
     }
@@ -392,7 +392,7 @@ class QueryBase {
 
   setParameter(name, value) {
     if (!name) {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Parameter 'name' is not passed to method 'setParameter'"
       });
     }
@@ -510,7 +510,7 @@ class QueryTranslator {
         timeout: query.timeout
       });
     } else {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Parameter 'query' is not passed to the method 'translate'"
       });
     }
@@ -572,7 +572,7 @@ class QueryTranslator {
 }
 exports.default = QueryTranslator;
 
-},{"rest-client-error":15,"rest-request-message":17}],11:[function(require,module,exports){
+},{"rest-client-error":15,"rest-request-message":18}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -650,7 +650,7 @@ class Repository {
         path: this.path
       });
     } else {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Query factoy is undefined"
       });
     }
@@ -810,7 +810,7 @@ class RestBulkRequestMessage {
         this.requestMessages.push(message);
       }
     } else {
-      throw (0, _restClientError2.default)({
+      throw new _restClientError2.default({
         message: "Message is undefined or it's type is invalid"
       });
     }
@@ -820,7 +820,7 @@ class RestBulkRequestMessage {
 }
 exports.default = RestBulkRequestMessage;
 
-},{"options":7,"rest-client-error":15,"rest-request-message":17}],14:[function(require,module,exports){
+},{"options":7,"rest-client-error":15,"rest-request-message":18}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1018,7 +1018,7 @@ class RestClient {
         } else if (requestMessage && requestMessage instanceof _restBulkRequestMessage2.default) {
           this._sendBulkMessage(requestMessage, httpRequest, resolve, reject);
         } else {
-          throw (0, _restClientError2.default)({
+          throw new _restClientError2.default({
             message: "Message is undefined or it's type is invalid"
           });
         }
@@ -1088,7 +1088,7 @@ class RestClient {
             contentType: contentType
           }));
         } else {
-          reject((0, _restClientError2.default)({
+          reject(new _restClientError2.default({
             message: "Failed to connect to the server"
           }));
         }
@@ -1135,7 +1135,37 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client-error":15,"rest-request-message":17,"rest-response-message":18}],17:[function(require,module,exports){
+},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client-error":15,"rest-request-message":18,"rest-response-message":19}],17:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RestMessageInterceptor {
+
+  constructor(options) {
+    _options2.default.assign(this, options);
+  }
+
+  beforeSend(requestMessage) {
+    return Promise.resolve(requestMessage);
+  }
+
+  afterSend(responseMessage) {
+    return Promise.resolve(responseMessage);
+  }
+
+}
+exports.default = RestMessageInterceptor;
+
+},{"options":7}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1166,7 +1196,7 @@ class RestRequestMessage {
 }
 exports.default = RestRequestMessage;
 
-},{"options":7}],18:[function(require,module,exports){
+},{"options":7}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1194,13 +1224,13 @@ class RestResponseMessage {
 }
 exports.default = RestResponseMessage;
 
-},{"options":7}],19:[function(require,module,exports){
+},{"options":7}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.RestMessageInterceptor = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
 
 var _restClientError = require('rest-client-error');
 
@@ -1217,6 +1247,10 @@ var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 var _cancellationTokenSource = require('cancellation-token-source');
 
 var _cancellationTokenSource2 = _interopRequireDefault(_cancellationTokenSource);
+
+var _restMessageInterceptor = require('rest-message-interceptor');
+
+var _restMessageInterceptor2 = _interopRequireDefault(_restMessageInterceptor);
 
 var _restClient = require('rest-client');
 
@@ -1276,6 +1310,7 @@ exports.RestClientError = _restClientError2.default;
 exports.Options = _options2.default;
 exports.CancellationToken = _cancellationToken2.default;
 exports.CancellationTokenSource = _cancellationTokenSource2.default;
+exports.RestMessageInterceptor = _restMessageInterceptor2.default;
 exports.RestClient = _restClient2.default;
 exports.RestRequestMessage = _restRequestMessage2.default;
 exports.RestResponseMessage = _restResponseMessage2.default;
@@ -1290,7 +1325,7 @@ exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-request-message":17,"rest-response-message":18}]},{},[19])(19)
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-interceptor":17,"rest-request-message":18,"rest-response-message":19}]},{},[20])(20)
 });
 
 

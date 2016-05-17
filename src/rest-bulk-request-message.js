@@ -19,7 +19,7 @@ export default class RestBulkRequestMessage {
         this.requestMessages.push(message);
       }
     } else {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Message is undefined or it's type is invalid"
       });
     }

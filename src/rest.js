@@ -2,6 +2,7 @@ import RestClientError from 'rest-client-error';
 import Options from 'options';
 import CancellationToken from 'cancellation-token';
 import CancellationTokenSource from 'cancellation-token-source';
+import RestMessageInterceptor from 'rest-message-interceptor';
 import RestClient from 'rest-client';
 import RestRequestMessage from 'rest-request-message';
 import RestResponseMessage from 'rest-response-message';
@@ -21,6 +22,7 @@ export {
   Options,
   CancellationToken,
   CancellationTokenSource,
+  RestMessageInterceptor,
   RestClient,
   RestRequestMessage,
   RestResponseMessage,

@@ -17,7 +17,7 @@ export default class QueryBase {
 
   setMethod(value) {
     if (!value) {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Parameter 'value' is not passed to the method 'setMethod'"
       });
     }
@@ -27,7 +27,7 @@ export default class QueryBase {
 
   setPath(value) {
     if (!value) {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Parameter 'value' is not passed to the method 'setPath'"
       });
     }
@@ -37,7 +37,7 @@ export default class QueryBase {
 
   setHeader(name, value) {
     if (!name) {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Parameter 'name' is not passed to method 'setHeader'"
       });
     }
@@ -52,7 +52,7 @@ export default class QueryBase {
 
   setParameter(name, value) {
     if (!name) {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Parameter 'name' is not passed to method 'setParameter'"
       });
     }

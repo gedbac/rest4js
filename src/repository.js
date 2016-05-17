@@ -23,7 +23,7 @@ export default class Repository {
         path: this.path
       });
     } else {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Query factoy is undefined"
       });
     }

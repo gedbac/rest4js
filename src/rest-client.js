@@ -50,7 +50,7 @@ export default class RestClient {
         } else if (requestMessage && requestMessage instanceof RestBulkRequestMessage) {
           this._sendBulkMessage(requestMessage, httpRequest, resolve, reject);
         } else {
-          throw RestClientError({
+          throw new RestClientError({
             message: "Message is undefined or it's type is invalid"
           });
         }
@@ -120,7 +120,7 @@ export default class RestClient {
             contentType: contentType
           }));
         } else {
-          reject(RestClientError({
+          reject(new RestClientError({
             message: "Failed to connect to the server"
           }));
         }

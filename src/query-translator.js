@@ -19,7 +19,7 @@ export default class QueryTranslator {
         timeout: query.timeout
       });
     } else {
-      throw RestClientError({
+      throw new RestClientError({
         message: "Parameter 'query' is not passed to the method 'translate'"
       });
     }
