@@ -11,6 +11,7 @@ import RestBulkResponseMessage from 'rest-bulk-response-message';
 import Batch from 'batch';
 import QueryBase from 'query-base';
 import Query from 'query';
+import SortDirection from 'sort-direction';
 import Repository from 'repository';
 import MediaTypeFormatter from 'media-type-formatter';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
@@ -31,6 +32,7 @@ export {
   Batch,
   QueryBase,
   Query,
+  SortDirection,
   Repository,
   MediaTypeFormatter,
   JsonMediaTypeFormatter,

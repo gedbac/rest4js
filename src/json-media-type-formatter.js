@@ -1,11 +1,14 @@
 import MediaTypeFormatter from 'media-type-formatter';
+import Options from 'options';
 
 export default class JsonMediaTypeFormatter extends MediaTypeFormatter {
 
   constructor(options) {
-    super(options);
+    super();
+    this.indent = 0;
     this.mediaTypes.push('application/json');
     this.defaultMediaType = 'application/json';
+    Options.assign(this, options);
   }
 
   read(text, objectType) {
@@ -29,7 +32,7 @@ export default class JsonMediaTypeFormatter extends MediaTypeFormatter {
 
   write(value) {
     if (value) {
-      return JSON.stringify(value);
+      return JSON.stringify(value, null, this.indent);
     }
     return null;
   }

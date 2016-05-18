@@ -9,8 +9,6 @@ import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
 import RestClientError from 'rest-client-error';
 
-const DONE = 4;
-
 export default class RestClient {
 
   constructor(options) {
@@ -19,6 +17,7 @@ export default class RestClient {
     this.port = 80;
     this.timeout = 30;
     this.defaultContentType = 'application/json';
+    this.messageHandler = [];
     this.mediaTypeFormatters = [
       new JsonMediaTypeFormatter()
     ];
@@ -61,6 +60,10 @@ export default class RestClient {
     });
   }
 
+  use(interceptor) {
+    return this;
+  }
+
   _sendMessage(requestMessage, httpRequest, resolve, reject) {
     var url = '';
     if (this.protocol) {
@@ -99,7 +102,7 @@ export default class RestClient {
       }
     }
     httpRequest.onreadystatechange = () => {
-      if (httpRequest && httpRequest.readyState === DONE) {
+      if (httpRequest && httpRequest.readyState === 4) {
         this._onReceiveMessage(requestMessage, httpRequest, resolve, reject);
       }
     };

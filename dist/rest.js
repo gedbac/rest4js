@@ -214,14 +214,20 @@ var _mediaTypeFormatter = require('media-type-formatter');
 
 var _mediaTypeFormatter2 = _interopRequireDefault(_mediaTypeFormatter);
 
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class JsonMediaTypeFormatter extends _mediaTypeFormatter2.default {
 
   constructor(options) {
-    super(options);
+    super();
+    this.indent = 0;
     this.mediaTypes.push('application/json');
     this.defaultMediaType = 'application/json';
+    _options2.default.assign(this, options);
   }
 
   read(text, objectType) {
@@ -245,14 +251,14 @@ class JsonMediaTypeFormatter extends _mediaTypeFormatter2.default {
 
   write(value) {
     if (value) {
-      return JSON.stringify(value);
+      return JSON.stringify(value, null, this.indent);
     }
     return null;
   }
 }
 exports.default = JsonMediaTypeFormatter;
 
-},{"media-type-formatter":6}],6:[function(require,module,exports){
+},{"media-type-formatter":6,"options":7}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -583,32 +589,139 @@ var _queryBase = require('query-base');
 
 var _queryBase2 = _interopRequireDefault(_queryBase);
 
+var _sortDirection = require('sort-direction');
+
+var _sortDirection2 = _interopRequireDefault(_sortDirection);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class Query extends _queryBase2.default {
 
   constructor(options) {
     super(options);
+    this.sorting = null;
+    this.transformation = null;
   }
 
-  // TODO: include option to sort
+  fields(fields) {
+    return this.setParameter('fields', fields);
+  }
 
-  fields(value) {
-    return this.setParameter('fields', value);
+  sortBy(field) {
+    if (field) {
+      if (!this.sorting) {
+        this.sorting = [];
+        this.sorting.push({
+          field: field,
+          direction: _sortDirection2.default.Acs
+        });
+      } else {
+        throw new _restClientError2.default({
+          message: "Sorting is already defined"
+        });
+      }
+    } else {
+      throw new _restClientError2.default({
+        message: "Parameter 'field' is not passed to the method 'sortBy'"
+      });
+    }
+    return this;
+  }
+
+  sortByDescending(field) {
+    if (field) {
+      if (!this.sorting) {
+        this.sorting = [];
+        this.sorting.push({
+          field: field,
+          direction: _sortDirection2.default.Desc
+        });
+      } else {
+        throw new _restClientError2.default({
+          message: "Sorting is already defined"
+        });
+      }
+    } else {
+      throw new _restClientError2.default({
+        message: "Parameter 'field' is not passed to the method 'sortByDescending'"
+      });
+    }
+    return this;
+  }
+
+  thenBy(field) {
+    if (field) {
+      if (this.sorting) {
+        this.sorting.push({
+          field: field,
+          direction: _sortDirection2.default.Asc
+        });
+      } else {
+        throw new _restClientError2.default({
+          message: "Sorting is not defined"
+        });
+      }
+    } else {
+      throw new _restClientError2.default({
+        message: "Parameter 'field' is not passed to the method 'thenBy'"
+      });
+    }
+    return this;
+  }
+
+  thenByDescending(field) {
+    if (field) {
+      if (this.sorting) {
+        this.sorting.push({
+          field: field,
+          direction: _sortDirection2.default.Desc
+        });
+      } else {
+        throw new _restClientError2.default({
+          message: "Sorting is not defined"
+        });
+      }
+    } else {
+      throw new _restClientError2.default({
+        message: "Parameter 'field' is not passed to the method 'thenByDescending'"
+      });
+    }
+    return this;
   }
 
   skip(value) {
     return this.setParameter('skip', value);
   }
 
-  take(value) {
-    return this.setParameter('take', value);
+  limit(value) {
+    return this.setParameter('limit', value);
+  }
+
+  transform(func) {
+    if (func) {
+      if (typeof func === "function") {
+        this.transformation = func;
+      } else {
+        throw new _restClientError2.default({
+          message: "Parameter 'func' passed to the method 'transform' has to be a function"
+        });
+      }
+    } else {
+      throw new _restClientError2.default({
+        message: "Parameter 'func' is not passed to the method 'transform'"
+      });
+    }
+    return this;
   }
 
 }
 exports.default = Query;
 
-},{"query-base":8}],12:[function(require,module,exports){
+},{"query-base":8,"rest-client-error":15,"sort-direction":21}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -979,8 +1092,6 @@ var _restClientError2 = _interopRequireDefault(_restClientError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const DONE = 4;
-
 class RestClient {
 
   constructor(options) {
@@ -988,6 +1099,8 @@ class RestClient {
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
+    this.defaultContentType = 'application/json';
+    this.messageHandler = [];
     this.mediaTypeFormatters = [new _jsonMediaTypeFormatter2.default()];
     this.services = {
       queryFactory: new _queryFactory2.default(),
@@ -1028,6 +1141,10 @@ class RestClient {
     });
   }
 
+  use(interceptor) {
+    return this;
+  }
+
   _sendMessage(requestMessage, httpRequest, resolve, reject) {
     var url = '';
     if (this.protocol) {
@@ -1056,7 +1173,7 @@ class RestClient {
       httpRequest.timeout = requestMessage.timeout;
     }
     if (!requestMessage.accept) {
-      requestMessage.accept = 'application/json';
+      requestMessage.accept = this.defaultContentType;
     }
     httpRequest.setRequestHeader('Cache-Control', 'no-cache');
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -1066,41 +1183,65 @@ class RestClient {
       }
     }
     httpRequest.onreadystatechange = () => {
-      if (httpRequest && httpRequest.readyState === DONE) {
-        if (httpRequest.status !== 0) {
-          var content = null;
-          var contentType = httpRequest.getResponseHeader("Content-Type");
-          if (httpRequest.responseText) {
-            var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
-            if (mediaTypeFormatter) {
-              content = mediaTypeFormatter.read(httpRequest.responseText);
-            } else {
-              content = httpRequest.responseText;
-            }
-          }
-          var headers = this._getResponseHeaders(httpRequest);
-          resolve(new _restResponseMessage2.default({
-            requestMessage: requestMessage,
-            status: httpRequest.status,
-            statusText: httpRequest.statusText,
-            headers: headers,
-            content: content,
-            contentType: contentType
-          }));
-        } else {
-          reject(new _restClientError2.default({
-            message: "Failed to connect to the server"
-          }));
-        }
+      if (httpRequest && httpRequest.readyState === 4) {
+        this._onReceiveMessage(requestMessage, httpRequest, resolve, reject);
       }
     };
-    httpRequest.send();
+    if (requestMessage.content) {
+      var content = null;
+      var contentType = requestMessage.contentType;
+      if (contentType) {
+        contentType = this.defaultContentType;
+      }
+      var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
+      if (mediaTypeFormatter) {
+        content = mediaTypeFormatter.write(requestMessage.content);
+      } else {
+        content = requestMessage.content;
+      }
+      httpRequest.setRequestHeader('Content-Type', contentType);
+      httpRequest.send(content);
+    } else {
+      httpRequest.send();
+    }
+  }
+
+  _onReceiveMessage(requestMessage, httpRequest, resolve, reject) {
+    if (httpRequest.status !== 0) {
+      var content = null;
+      var contentType = httpRequest.getResponseHeader("Content-Type");
+      if (httpRequest.responseText) {
+        var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
+        if (mediaTypeFormatter) {
+          content = mediaTypeFormatter.read(httpRequest.responseText);
+        } else {
+          content = httpRequest.responseText;
+        }
+      }
+      var headers = this._getResponseHeaders(httpRequest);
+      resolve(new _restResponseMessage2.default({
+        requestMessage: requestMessage,
+        status: httpRequest.status,
+        statusText: httpRequest.statusText,
+        headers: headers,
+        content: content,
+        contentType: contentType
+      }));
+    } else {
+      reject(new _restClientError2.default({
+        message: "Failed to connect to the server"
+      }));
+    }
   }
 
   _sendBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
     setTimeout(() => {
       resolve(new _restBulkResponseMessage2.default());
     }, 5000);
+  }
+
+  _onReceiveBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
+    // TODO: not implemented
   }
 
   _getMediaTypeFormatter(contentType) {
@@ -1230,7 +1371,7 @@ exports.default = RestResponseMessage;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.RestMessageInterceptor = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.RestMessageInterceptor = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
 
 var _restClientError = require('rest-client-error');
 
@@ -1284,6 +1425,10 @@ var _query = require('query');
 
 var _query2 = _interopRequireDefault(_query);
 
+var _sortDirection = require('sort-direction');
+
+var _sortDirection2 = _interopRequireDefault(_sortDirection);
+
 var _repository = require('repository');
 
 var _repository2 = _interopRequireDefault(_repository);
@@ -1319,13 +1464,26 @@ exports.RestBulkResponseMessage = _restBulkResponseMessage2.default;
 exports.Batch = _batch2.default;
 exports.QueryBase = _queryBase2.default;
 exports.Query = _query2.default;
+exports.SortDirection = _sortDirection2.default;
 exports.Repository = _repository2.default;
 exports.MediaTypeFormatter = _mediaTypeFormatter2.default;
 exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-interceptor":17,"rest-request-message":18,"rest-response-message":19}]},{},[20])(20)
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-interceptor":17,"rest-request-message":18,"rest-response-message":19,"sort-direction":21}],21:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+class SortDirection {}
+
+exports.default = SortDirection;
+SortDirection.Asc = 1;
+SortDirection.Desc = -1;
+
+},{}]},{},[20])(20)
 });
 
 

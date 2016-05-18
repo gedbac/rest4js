@@ -11,7 +11,7 @@ describe("Options", () => {
       id: null,
       name: null
     };
-    Options.assign(target, options);
+    rest.Options.assign(target, options);
     expect(target.id).toEqual(options.id);
     expect(target.name).toEqual(options.name);
   });
@@ -20,7 +20,8 @@ describe("Options", () => {
     var options = {
       name: "#TEXT"
     };
-    Options.assign(target, options);
+    var target = {};
+    rest.Options.assign(target, options);
     expect(target.name).toBeUndefined();
   });
 });

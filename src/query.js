@@ -1,32 +1,98 @@
 import QueryBase from 'query-base';
+import SortDirection from 'sort-direction';
+import RestClientError from 'rest-client-error';
 
 export default class Query extends QueryBase {
 
   constructor(options) {
     super(options);
+    this.sorting = null;
+    this.transformation = null;
   }
 
-  fields(value) {
-    return this.setParameter('fields', value);
+  fields(fields) {
+    return this.setParameter('fields', fields);
   }
 
-  sortBy(value) {
-    // TODO: not implemented
+  sortBy(field) {
+    if (field) {
+      if (!this.sorting) {
+        this.sorting = [];
+        this.sorting.push({
+          field: field,
+          direction: SortDirection.Acs
+        });
+      } else {
+        throw new RestClientError({
+          message: "Sorting is already defined"
+        });
+      }
+    } else {
+      throw new RestClientError({
+        message: "Parameter 'field' is not passed to the method 'sortBy'"
+      });
+    }
     return this;
   }
 
-  sortByDescending(value) {
-    // TODO: not implemented
+  sortByDescending(field) {
+    if (field) {
+      if (!this.sorting) {
+        this.sorting = [];
+        this.sorting.push({
+          field: field,
+          direction: SortDirection.Desc
+        });
+      } else {
+        throw new RestClientError({
+          message: "Sorting is already defined"
+        });
+      }
+    } else {
+      throw new RestClientError({
+        message: "Parameter 'field' is not passed to the method 'sortByDescending'"
+      });
+    }
     return this;
   }
 
-  thenBy(value) {
-    // TODO: not implemented
+  thenBy(field) {
+    if (field) {
+      if (this.sorting) {
+        this.sorting.push({
+          field: field,
+          direction: SortDirection.Asc
+        });
+      } else {
+        throw new RestClientError({
+          message: "Sorting is not defined"
+        });
+      }
+    } else {
+      throw new RestClientError({
+        message: "Parameter 'field' is not passed to the method 'thenBy'"
+      });
+    }
     return this;
   }
 
-  thenByDescending(value) {
-    // TODO: not implemented
+  thenByDescending(field) {
+    if (field) {
+      if (this.sorting) {
+        this.sorting.push({
+          field: field,
+          direction: SortDirection.Desc
+        });
+      } else {
+        throw new RestClientError({
+          message: "Sorting is not defined"
+        });
+      }
+    } else {
+      throw new RestClientError({
+        message: "Parameter 'field' is not passed to the method 'thenByDescending'"
+      });
+    }
     return this;
   }
 
@@ -36,6 +102,23 @@ export default class Query extends QueryBase {
 
   limit(value) {
     return this.setParameter('limit', value);
+  }
+
+  transform(func) {
+    if (func) {
+      if (typeof func === "function") {
+        this.transformation = func;
+      } else {
+        throw new RestClientError({
+          message: "Parameter 'func' passed to the method 'transform' has to be a function"
+        });
+      }
+    } else {
+      throw new RestClientError({
+        message: "Parameter 'func' is not passed to the method 'transform'"
+      });
+    }
+    return this;
   }
 
 }

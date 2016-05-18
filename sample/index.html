@@ -22,7 +22,7 @@
           var client = new rest.RestClient({
             port: 8080
           });
-          //client.use(new Compression());
+          //client.use(new NoCaching());
           var cancellationTokenSource = new rest.CancellationTokenSource();
           // var requestMessage = new rest.RestRequestMessage({
           //   method: 'GET',
