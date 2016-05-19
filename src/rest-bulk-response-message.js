@@ -2,7 +2,8 @@ import Options from 'options';
 
 export default class RestBulkResponseMessage {
 
-  constructor() {
+  constructor(options) {
+    this.requestMessage = null;
     this.status = null;
     this.statusText = null;
     this.headers = null;

@@ -5,8 +5,9 @@ import RestClientError from 'rest-client-error';
 export default class RestBulkRequestMessage {
 
   constructor(options) {
-    this.method = null;
+    this.method = 'POST';
     this.path = null;
+    this.queryString = null;
     this.headers = null;
     this.timeout = null;
     this.requestMessages = [];

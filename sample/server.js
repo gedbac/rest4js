@@ -33,6 +33,9 @@ http.createServer((request, response) => {
     } else {
       response.end(content, 'utf-8');
     }
+  } else if (request.method === 'POST' && request.url.startsWith('/api/batch')) {
+    response.statusCode = 200;
+    response.end();
   } else if (request.method === 'GET') {
     var filePath = '.' + request.url;
     if (filePath == './') {

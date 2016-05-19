@@ -909,8 +909,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class RestBulkRequestMessage {
 
   constructor(options) {
-    this.method = null;
+    this.method = 'POST';
     this.path = null;
+    this.queryString = null;
     this.headers = null;
     this.timeout = null;
     this.requestMessages = [];
@@ -948,7 +949,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class RestBulkResponseMessage {
 
-  constructor() {
+  constructor(options) {
+    this.requestMessage = null;
     this.status = null;
     this.statusText = null;
     this.headers = null;
@@ -1058,6 +1060,10 @@ var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
+var _urlBuilder = require('url-builder');
+
+var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
+
 var _restRequestMessage = require('rest-request-message');
 
 var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
@@ -1095,12 +1101,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class RestClient {
 
   constructor(options) {
-    this.protocol = 'http';
+    this.scheme = 'http';
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
-    this.defaultContentType = 'application/json';
-    this.messageHandler = [];
+    this.defaultContentType = 'application/json; charset=utf-8';
+    this.messageHandlers = [];
     this.mediaTypeFormatters = [new _jsonMediaTypeFormatter2.default()];
     this.services = {
       queryFactory: new _queryFactory2.default(),
@@ -1113,6 +1119,11 @@ class RestClient {
   send(requestMessage, cancellationToken = _cancellationToken2.default.none) {
     return new Promise((resolve, reject) => {
       try {
+        if (!requestMessage.method) {
+          throw new _restClientError2.default({
+            message: "Request doesn't have method defined"
+          });
+        }
         var httpRequest = null;
         cancellationToken.throwIfCanceled();
         cancellationToken.register(() => {
@@ -1145,28 +1156,27 @@ class RestClient {
     return this;
   }
 
+  getMediaTypeFormatter(contentType) {
+    var mediaTypeFormatter = null;
+    if (contentType && this.mediaTypeFormatters && this.mediaTypeFormatters.length > 0) {
+      for (var i = 0; i < this.mediaTypeFormatters.length; i++) {
+        if (this.mediaTypeFormatters[i].contentType === contentType) {
+          mediaTypeFormatter = this.mediaTypeFormatters[i];
+          break;
+        }
+      }
+    }
+    return mediaTypeFormatter;
+  }
+
   _sendMessage(requestMessage, httpRequest, resolve, reject) {
-    var url = '';
-    if (this.protocol) {
-      url += `${ this.protocol }://`;
-    } else {
-      url += 'http://';
-    }
-    if (this.host) {
-      url += `${ this.host }`;
-    } else {
-      url += 'localhost';
-    }
-    if (this.port && this.port !== 80) {
-      url += `:${ this.port }`;
-    }
-    if (!requestMessage.path.startsWith('/')) {
-      requestMessage.path = '/' + requestMessage.path;
-    }
-    url += requestMessage.path;
-    if (requestMessage.queryString) {
-      url += '?' + requestMessage.queryString;
-    }
+    var url = new _urlBuilder2.default({
+      scheme: this.scheme,
+      host: this.host,
+      port: this.port,
+      path: requestMessage.path,
+      queryString: requestMessage.queryString
+    }).toString();
     httpRequest.open(requestMessage.method, url, true);
     httpRequest.timeout = this.timeout;
     if ('timeout' in requestMessage && requestMessage.timeout > 0) {
@@ -1175,13 +1185,13 @@ class RestClient {
     if (!requestMessage.accept) {
       requestMessage.accept = this.defaultContentType;
     }
-    httpRequest.setRequestHeader('Cache-Control', 'no-cache');
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     if (requestMessage.headers) {
       for (var headerName in requestMessage.headers) {
         httpRequest.setRequestHeader(headerName, requestMessage.headers[headerName]);
       }
     }
+    //httpRequest.setRequestHeader('Cache-Control', 'no-cache');
     httpRequest.onreadystatechange = () => {
       if (httpRequest && httpRequest.readyState === 4) {
         this._onReceiveMessage(requestMessage, httpRequest, resolve, reject);
@@ -1193,7 +1203,7 @@ class RestClient {
       if (contentType) {
         contentType = this.defaultContentType;
       }
-      var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
+      var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
       if (mediaTypeFormatter) {
         content = mediaTypeFormatter.write(requestMessage.content);
       } else {
@@ -1211,7 +1221,7 @@ class RestClient {
       var content = null;
       var contentType = httpRequest.getResponseHeader("Content-Type");
       if (httpRequest.responseText) {
-        var mediaTypeFormatter = this._getMediaTypeFormatter(contentType);
+        var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
         if (mediaTypeFormatter) {
           content = mediaTypeFormatter.read(httpRequest.responseText);
         } else {
@@ -1235,26 +1245,113 @@ class RestClient {
   }
 
   _sendBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
-    setTimeout(() => {
-      resolve(new _restBulkResponseMessage2.default());
-    }, 5000);
+    var url = new _urlBuilder2.default({
+      scheme: this.scheme,
+      host: this.host,
+      port: this.port,
+      path: bulkRequestMessage.path,
+      queryString: bulkRequestMessage.queryString
+    }).toString();
+    httpRequest.open(bulkRequestMessage.method, url, true);
+    httpRequest.timeout = this.timeout;
+    if ('timeout' in bulkRequestMessage && bulkRequestMessage.timeout > 0) {
+      httpRequest.timeout = bulkRequestMessage.timeout;
+    }
+    bulkRequestMessage.accept = 'multipart/mixed';
+    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    if (bulkRequestMessage.headers) {
+      for (var headerName in bulkRequestMessage.headers) {
+        httpRequest.setRequestHeader(headerName, bulkRequestMessage.headers[headerName]);
+      }
+    }
+    httpRequest.onreadystatechange = () => {
+      if (httpRequest && httpRequest.readyState === 4) {
+        this._onReceiveBulkMessage(bulkRequestMessage, httpRequest, resolve, reject);
+      }
+    };
+    if (bulkRequestMessage.requestMessages && bulkRequestMessage.requestMessages.length > 0) {
+      var content = '';
+      var boundary = bulkRequestMessage.boundary || 'gc0p4Jq0M2Yt08jU534c0p';
+      httpRequest.setRequestHeader('Content-Type', `multipart/mixed; boundary="${ boundary }"`);
+      bulkRequestMessage.requestMessages.forEach(requestMessage => {
+        content = this._appendRequestMessageToContent(requestMessage, content, boundary);
+      });
+      content += `--${ boundary }--`;
+      httpRequest.send(content);
+    } else {
+      httpRequest.send();
+    }
+  }
+
+  _appendRequestMessageToContent(requestMessage, output, boundary) {
+    if (!requestMessage.method) {
+      throw new _restClientError2.default({
+        message: "Request doesn't have method defined"
+      });
+    }
+    if (!requestMessage.path) {
+      throw new _restClientError2.default({
+        message: "Request doesn't have path defined"
+      });
+    }
+    output += `--${ boundary }\r\n`;
+    output += 'application/http; msgtype=request\r\n\r\n';
+    output += `${ requestMessage.method } ${ requestMessage.path } HTTP/1.1\r\n`;
+    if (requestMessage.headers) {
+      for (var headerName in requestMessage.headers) {
+        output += `${ headerName }: ${ requestMessage.headers[headerName] }`;
+      }
+    }
+    if (requestMessage.content) {
+      var content = null;
+      var contentType = requestMessage.contentType;
+      if (contentType) {
+        contentType = this.defaultContentType;
+      }
+      var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
+      if (mediaTypeFormatter) {
+        content = mediaTypeFormatter.write(requestMessage.content);
+      } else {
+        content = requestMessage.content;
+      }
+      output += `Content-Type: ${ contentType }`;
+      output += content;
+    }
+    return output;
   }
 
   _onReceiveBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
     // TODO: not implemented
+    resolve(new _restBulkResponseMessage2.default({
+      requestMessage: bulkRequestMessage
+    }));
   }
 
-  _getMediaTypeFormatter(contentType) {
-    var mediaTypeFormatter = null;
-    if (contentType && this.mediaTypeFormatters && this.mediaTypeFormatters.length > 0) {
-      for (var i = 0; i < this.mediaTypeFormatters.length; i++) {
-        if (this.mediaTypeFormatters[i].contentType === contentType) {
-          mediaTypeFormatter = this.mediaTypeFormatters[i];
-          break;
-        }
-      }
+  _getUrl(scheme, host, port, path, queryString) {
+    var url = '';
+    if (scheme) {
+      url += `${ scheme }://`;
+    } else {
+      url += 'http://';
     }
-    return mediaTypeFormatter;
+    if (host) {
+      url += `${ host }`;
+    } else {
+      url += 'localhost';
+    }
+    if (port && port !== 80) {
+      url += `:${ port }`;
+    }
+    if (path) {
+      if (!path.startsWith('/')) {
+        path = '/' + path;
+      }
+      url += path;
+    }
+    if (queryString) {
+      url += '?' + queryString;
+    }
+    return url;
   }
 
   _getResponseHeaders(httpRequest) {
@@ -1276,7 +1373,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client-error":15,"rest-request-message":18,"rest-response-message":19}],17:[function(require,module,exports){
+},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client-error":15,"rest-request-message":18,"rest-response-message":19,"url-builder":22}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1371,7 +1468,7 @@ exports.default = RestResponseMessage;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.RestMessageInterceptor = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.RestMessageInterceptor = exports.UrlBuilder = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
 
 var _restClientError = require('rest-client-error');
 
@@ -1388,6 +1485,10 @@ var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 var _cancellationTokenSource = require('cancellation-token-source');
 
 var _cancellationTokenSource2 = _interopRequireDefault(_cancellationTokenSource);
+
+var _urlBuilder = require('url-builder');
+
+var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
 
 var _restMessageInterceptor = require('rest-message-interceptor');
 
@@ -1455,6 +1556,7 @@ exports.RestClientError = _restClientError2.default;
 exports.Options = _options2.default;
 exports.CancellationToken = _cancellationToken2.default;
 exports.CancellationTokenSource = _cancellationTokenSource2.default;
+exports.UrlBuilder = _urlBuilder2.default;
 exports.RestMessageInterceptor = _restMessageInterceptor2.default;
 exports.RestClient = _restClient2.default;
 exports.RestRequestMessage = _restRequestMessage2.default;
@@ -1471,7 +1573,7 @@ exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-interceptor":17,"rest-request-message":18,"rest-response-message":19,"sort-direction":21}],21:[function(require,module,exports){
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-interceptor":17,"rest-request-message":18,"rest-response-message":19,"sort-direction":21,"url-builder":22}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1483,7 +1585,62 @@ exports.default = SortDirection;
 SortDirection.Asc = 1;
 SortDirection.Desc = -1;
 
-},{}]},{},[20])(20)
+},{}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class UrlBuilder {
+
+  constructor(options) {
+    this.scheme = 'http';
+    this.host = 'localhost';
+    this.port = 80;
+    this.path = '/';
+    this.queryString = null;
+    _options2.default.assign(this, options);
+  }
+
+  toString() {
+    var url = '';
+    if (this.scheme) {
+      url += `${ this.scheme }://`;
+    } else {
+      url += 'http://';
+    }
+    if (this.host) {
+      url += `${ this.host }`;
+    } else {
+      url += 'localhost';
+    }
+    if (this.port && this.port != 80) {
+      url += `:${ this.port }`;
+    }
+    if (this.path && this.path != '/') {
+      if (!this.path.startsWith('/')) {
+        path += '/' + this.path;
+      } else {
+        url += this.path;
+      }
+    }
+    if (this.queryString) {
+      url += '?' + this.queryString;
+    }
+    return url;
+  }
+
+}
+exports.default = UrlBuilder;
+
+},{"options":7}]},{},[20])(20)
 });
 
 

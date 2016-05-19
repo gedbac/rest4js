@@ -1,14 +1,10 @@
-export default class RestMessageHandle {
+export default class RestMessageHandler {
 
   constructor() {
 
   }
 
-  send(context) {
-
-  }
-
-  onReceive(context) {
+  send(requestMessage, context) {
 
   }
 
