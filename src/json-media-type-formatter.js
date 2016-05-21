@@ -1,7 +1,7 @@
-import MediaTypeFormatter from 'media-type-formatter';
 import Options from 'options';
+import MediaTypeFormatterBase from 'media-type-formatter-base';
 
-export default class JsonMediaTypeFormatter extends MediaTypeFormatter {
+export default class JsonMediaTypeFormatter extends MediaTypeFormatterBase {
 
   constructor(options) {
     super();

@@ -23,10 +23,10 @@ export default class UrlBuilder {
     } else {
       url += 'localhost';
     }
-    if (this.port && this.port != 80) {
+    if (this.port && this.port !== 80) {
       url += `:${this.port}`;
     }
-    if (this.path && this.path != '/') {
+    if (this.path && this.path !== '/') {
       if (!this.path.startsWith('/')) {
         path += '/' + this.path;
       } else {

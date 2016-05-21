@@ -210,17 +210,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _mediaTypeFormatter = require('media-type-formatter');
-
-var _mediaTypeFormatter2 = _interopRequireDefault(_mediaTypeFormatter);
-
 var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
 
+var _mediaTypeFormatterBase = require('media-type-formatter-base');
+
+var _mediaTypeFormatterBase2 = _interopRequireDefault(_mediaTypeFormatterBase);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class JsonMediaTypeFormatter extends _mediaTypeFormatter2.default {
+class JsonMediaTypeFormatter extends _mediaTypeFormatterBase2.default {
 
   constructor(options) {
     super();
@@ -258,7 +258,7 @@ class JsonMediaTypeFormatter extends _mediaTypeFormatter2.default {
 }
 exports.default = JsonMediaTypeFormatter;
 
-},{"media-type-formatter":6,"options":7}],6:[function(require,module,exports){
+},{"media-type-formatter-base":6,"options":7}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -275,7 +275,7 @@ var _restClientError2 = _interopRequireDefault(_restClientError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class MediaTypeFormatter {
+class MediaTypeFormatterBase {
 
   constructor(options) {
     this.mediaTypes = [];
@@ -283,28 +283,20 @@ class MediaTypeFormatter {
     _options2.default.assign(this, options);
   }
 
-  canReadType(objectType) {
-    return true;
-  }
-
-  carWriteType(objectType) {
-    return true;
-  }
-
   read(content, objectType) {
     throw new _restClientError2.default({
-      message: "Method 'read' is not supported for class 'MediaTypeFormatter'"
+      message: "Method 'read' is not supported for class 'MediaTypeFormatterBase'"
     });
   }
 
   write(value) {
     throw new _restClientError2.default({
-      message: "Method 'write' is not supported for class 'MediaTypeFormatter'"
+      message: "Method 'write' is not supported for class 'MediaTypeFormatterBase'"
     });
   }
 
 }
-exports.default = MediaTypeFormatter;
+exports.default = MediaTypeFormatterBase;
 
 },{"options":7,"rest-client-error":15}],7:[function(require,module,exports){
 "use strict";
@@ -578,12 +570,16 @@ class QueryTranslator {
 }
 exports.default = QueryTranslator;
 
-},{"rest-client-error":15,"rest-request-message":18}],11:[function(require,module,exports){
+},{"rest-client-error":15,"rest-request-message":21}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
 
 var _queryBase = require('query-base');
 
@@ -602,9 +598,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class Query extends _queryBase2.default {
 
   constructor(options) {
-    super(options);
+    super();
     this.sorting = null;
     this.transformation = null;
+    _options2.default.assign(this, options);
   }
 
   fields(fields) {
@@ -721,7 +718,7 @@ class Query extends _queryBase2.default {
 }
 exports.default = Query;
 
-},{"query-base":8,"rest-client-error":15,"sort-direction":21}],12:[function(require,module,exports){
+},{"options":7,"query-base":8,"rest-client-error":15,"sort-direction":24}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -934,7 +931,7 @@ class RestBulkRequestMessage {
 }
 exports.default = RestBulkRequestMessage;
 
-},{"options":7,"rest-client-error":15,"rest-request-message":18}],14:[function(require,module,exports){
+},{"options":7,"rest-client-error":15,"rest-request-message":21}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -967,7 +964,6 @@ exports.default = RestBulkResponseMessage;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.RestClientError = undefined;
 
 var _options = require('options');
 
@@ -1043,7 +1039,7 @@ class RestClientError {
   }
 
 }
-exports.RestClientError = RestClientError;
+exports.default = RestClientError;
 
 },{"options":7}],16:[function(require,module,exports){
 'use strict';
@@ -1060,29 +1056,33 @@ var _cancellationToken = require('cancellation-token');
 
 var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
 
-var _urlBuilder = require('url-builder');
+var _restClientError = require('rest-client-error');
 
-var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
+var _restClientError2 = _interopRequireDefault(_restClientError);
 
-var _restRequestMessage = require('rest-request-message');
+var _restMessageContext = require('rest-message-context');
 
-var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
-
-var _restResponseMessage = require('rest-response-message');
-
-var _restResponseMessage2 = _interopRequireDefault(_restResponseMessage);
-
-var _restBulkRequestMessage = require('rest-bulk-request-message');
-
-var _restBulkRequestMessage2 = _interopRequireDefault(_restBulkRequestMessage);
+var _restMessageContext2 = _interopRequireDefault(_restMessageContext);
 
 var _restBulkResponseMessage = require('rest-bulk-response-message');
 
 var _restBulkResponseMessage2 = _interopRequireDefault(_restBulkResponseMessage);
 
+var _mediaTypeFormatterBase = require('media-type-formatter-base');
+
+var _mediaTypeFormatterBase2 = _interopRequireDefault(_mediaTypeFormatterBase);
+
 var _jsonMediaTypeFormatter = require('json-media-type-formatter');
 
 var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
+
+var _restMessageHandlerBase = require('rest-message-handler-base');
+
+var _restMessageHandlerBase2 = _interopRequireDefault(_restMessageHandlerBase);
+
+var _restMessageHandler = require('rest-message-handler');
+
+var _restMessageHandler2 = _interopRequireDefault(_restMessageHandler);
 
 var _queryFactory = require('query-factory');
 
@@ -1092,9 +1092,9 @@ var _queryTranslator = require('query-translator');
 
 var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
 
-var _restClientError = require('rest-client-error');
+var _urlBuilder = require('url-builder');
 
-var _restClientError2 = _interopRequireDefault(_restClientError);
+var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1105,62 +1105,73 @@ class RestClient {
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
-    this.defaultContentType = 'application/json; charset=utf-8';
-    this.messageHandlers = [];
+    this.defaultContentType = 'application/json';
     this.mediaTypeFormatters = [new _jsonMediaTypeFormatter2.default()];
+    this.messageHandlers = [new _restMessageHandler2.default()];
     this.services = {
       queryFactory: new _queryFactory2.default(),
       queryTranslator: new _queryTranslator2.default()
     };
-    this.interceptors = [];
+    this.messageInterceptors = [];
     _options2.default.assign(this, options);
   }
 
   send(requestMessage, cancellationToken = _cancellationToken2.default.none) {
     return new Promise((resolve, reject) => {
       try {
-        if (!requestMessage.method) {
-          throw new _restClientError2.default({
-            message: "Request doesn't have method defined"
-          });
-        }
-        var httpRequest = null;
         cancellationToken.throwIfCanceled();
-        cancellationToken.register(() => {
-          try {
-            if (httpRequest) {
-              httpRequest.abort();
-            }
-            cancellationToken.throwIfCanceled();
-          } catch (ex) {
-            reject(ex);
-          }
-        });
-        httpRequest = new XMLHttpRequest();
-        if (requestMessage && requestMessage instanceof _restRequestMessage2.default) {
-          this._sendMessage(requestMessage, httpRequest, resolve, reject);
-        } else if (requestMessage && requestMessage instanceof _restBulkRequestMessage2.default) {
-          this._sendBulkMessage(requestMessage, httpRequest, resolve, reject);
-        } else {
+        if (!requestMessage) {
           throw new _restClientError2.default({
-            message: "Message is undefined or it's type is invalid"
+            message: "Parameter 'requestMessage' is not passed to the method 'send' of class 'RestClient'"
           });
         }
-      } catch (ex) {
-        reject(ex);
+        var messageHandler = this.getMessageHandler(requestMessage);
+        if (!messageHandler) {
+          throw new _restClientError2.default({
+            message: `Message handler is not defined for request message of type '${ requestMessage.constructor.name }'`
+          });
+        }
+        var context = new _restMessageContext2.default({
+          client: this
+        });
+        messageHandler.send(requestMessage, context, cancellationToken).then(resolve, reject);
+      } catch (error) {
+        reject(error);
       }
     });
   }
 
-  use(interceptor) {
+  use(value) {
+    if (value) {
+      if (value instanceof _mediaTypeFormatterBase2.default) {
+        this.mediaTypeFormatters.push(value);
+      } else if (value instanceof _restMessageHandlerBase2.default) {
+        this.messageHandlers.push(value);
+      } else if (value instanceof RestMessageInterceptorBase) {
+        this.messageInterceptors.push(value);
+      }
+    }
     return this;
+  }
+
+  getMessageHandler(requestMessage) {
+    var messageHandler = null;
+    if (requestMessage && this.messageHandlers && this.messageHandlers instanceof Array) {
+      for (var i = 0; i < this.messageHandlers.length; i++) {
+        if (this.messageHandlers[i].messageTypes && this.messageHandlers[i].messageTypes instanceof Array && this.messageHandlers[i].messageTypes.indexOf(requestMessage.constructor) !== -1) {
+          messageHandler = this.messageHandlers[i];
+          break;
+        }
+      }
+    }
+    return messageHandler;
   }
 
   getMediaTypeFormatter(contentType) {
     var mediaTypeFormatter = null;
-    if (contentType && this.mediaTypeFormatters && this.mediaTypeFormatters.length > 0) {
+    if (contentType && this.mediaTypeFormatters && this.mediaTypeFormatters instanceof Array) {
       for (var i = 0; i < this.mediaTypeFormatters.length; i++) {
-        if (this.mediaTypeFormatters[i].contentType === contentType) {
+        if (this.mediaTypeFormatters[i].mediaTypes && this.mediaTypeFormatters[i].mediaTypes instanceof Array && this.mediaTypeFormatters[i].mediaTypes.indexOf(contentType) !== -1) {
           mediaTypeFormatter = this.mediaTypeFormatters[i];
           break;
         }
@@ -1169,82 +1180,12 @@ class RestClient {
     return mediaTypeFormatter;
   }
 
-  _sendMessage(requestMessage, httpRequest, resolve, reject) {
-    var url = new _urlBuilder2.default({
-      scheme: this.scheme,
-      host: this.host,
-      port: this.port,
-      path: requestMessage.path,
-      queryString: requestMessage.queryString
-    }).toString();
-    httpRequest.open(requestMessage.method, url, true);
-    httpRequest.timeout = this.timeout;
-    if ('timeout' in requestMessage && requestMessage.timeout > 0) {
-      httpRequest.timeout = requestMessage.timeout;
-    }
-    if (!requestMessage.accept) {
-      requestMessage.accept = this.defaultContentType;
-    }
-    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    if (requestMessage.headers) {
-      for (var headerName in requestMessage.headers) {
-        httpRequest.setRequestHeader(headerName, requestMessage.headers[headerName]);
-      }
-    }
-    //httpRequest.setRequestHeader('Cache-Control', 'no-cache');
-    httpRequest.onreadystatechange = () => {
-      if (httpRequest && httpRequest.readyState === 4) {
-        this._onReceiveMessage(requestMessage, httpRequest, resolve, reject);
-      }
-    };
-    if (requestMessage.content) {
-      var content = null;
-      var contentType = requestMessage.contentType;
-      if (contentType) {
-        contentType = this.defaultContentType;
-      }
-      var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
-      if (mediaTypeFormatter) {
-        content = mediaTypeFormatter.write(requestMessage.content);
-      } else {
-        content = requestMessage.content;
-      }
-      httpRequest.setRequestHeader('Content-Type', contentType);
-      httpRequest.send(content);
-    } else {
-      httpRequest.send();
-    }
-  }
-
-  _onReceiveMessage(requestMessage, httpRequest, resolve, reject) {
-    if (httpRequest.status !== 0) {
-      var content = null;
-      var contentType = httpRequest.getResponseHeader("Content-Type");
-      if (httpRequest.responseText) {
-        var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
-        if (mediaTypeFormatter) {
-          content = mediaTypeFormatter.read(httpRequest.responseText);
-        } else {
-          content = httpRequest.responseText;
-        }
-      }
-      var headers = this._getResponseHeaders(httpRequest);
-      resolve(new _restResponseMessage2.default({
-        requestMessage: requestMessage,
-        status: httpRequest.status,
-        statusText: httpRequest.statusText,
-        headers: headers,
-        content: content,
-        contentType: contentType
-      }));
-    } else {
-      reject(new _restClientError2.default({
-        message: "Failed to connect to the server"
-      }));
-    }
-  }
-
   _sendBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
+    if (!bulkRequestMessage.method) {
+      throw new _restClientError2.default({
+        message: "Request doesn't have method defined"
+      });
+    }
     var url = new _urlBuilder2.default({
       scheme: this.scheme,
       host: this.host,
@@ -1327,33 +1268,6 @@ class RestClient {
     }));
   }
 
-  _getUrl(scheme, host, port, path, queryString) {
-    var url = '';
-    if (scheme) {
-      url += `${ scheme }://`;
-    } else {
-      url += 'http://';
-    }
-    if (host) {
-      url += `${ host }`;
-    } else {
-      url += 'localhost';
-    }
-    if (port && port !== 80) {
-      url += `:${ port }`;
-    }
-    if (path) {
-      if (!path.startsWith('/')) {
-        path = '/' + path;
-      }
-      url += path;
-    }
-    if (queryString) {
-      url += '?' + queryString;
-    }
-    return url;
-  }
-
   _getResponseHeaders(httpRequest) {
     var headers = {};
     var text = httpRequest.getAllResponseHeaders();
@@ -1373,7 +1287,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client-error":15,"rest-request-message":18,"rest-response-message":19,"url-builder":22}],17:[function(require,module,exports){
+},{"cancellation-token":4,"json-media-type-formatter":5,"media-type-formatter-base":6,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-response-message":14,"rest-client-error":15,"rest-message-context":17,"rest-message-handler":19,"rest-message-handler-base":18,"url-builder":25}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1386,24 +1300,302 @@ var _options2 = _interopRequireDefault(_options);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class RestMessageInterceptor {
+class RestMessageContext {
+
+  constructor(options) {
+    this.client = null;
+    this.items = {};
+    _options2.default.assign(this, options);
+  }
+
+}
+exports.default = RestMessageContext;
+
+},{"options":7}],18:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+var _cancellationToken = require('cancellation-token');
+
+var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RestMessageHandlerBase {
+
+  constructor(options) {
+    this.messageTypes = [];
+    _options2.default.assign(this, options);
+  }
+
+  send(requestMessage, context, cancellationToken = _cancellationToken2.default.none) {
+    throw new _restClientError2.default({
+      message: "Method 'send' is not supported for class 'RestMessageHandlerBase'"
+    });
+  }
+
+}
+exports.default = RestMessageHandlerBase;
+
+},{"cancellation-token":4,"options":7,"rest-client-error":15}],19:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+var _cancellationToken = require('cancellation-token');
+
+var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
+
+var _restMessageHandlerBase = require('rest-message-handler-base');
+
+var _restMessageHandlerBase2 = _interopRequireDefault(_restMessageHandlerBase);
+
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
+var _urlBuilder = require('url-builder');
+
+var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
+
+var _restRequestMessage = require('rest-request-message');
+
+var _restRequestMessage2 = _interopRequireDefault(_restRequestMessage);
+
+var _restResponseMessage = require('rest-response-message');
+
+var _restResponseMessage2 = _interopRequireDefault(_restResponseMessage);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RestMessageHandler extends _restMessageHandlerBase2.default {
+
+  constructor(options) {
+    super();
+    this.messageTypes.push(_restRequestMessage2.default);
+    _options2.default.assign(this, options);
+  }
+
+  send(requestMessage, context, cancellationToken = _cancellationToken2.default.none) {
+    return new Promise((resolve, reject) => {
+      try {
+        var httpRequest = null;
+        cancellationToken.throwIfCanceled();
+        cancellationToken.register(() => {
+          try {
+            if (httpRequest) {
+              httpRequest.abort();
+            }
+            cancellationToken.throwIfCanceled();
+          } catch (ex) {
+            reject(ex);
+          }
+        });
+        if (!requestMessage) {
+          throw new _restClientError2.default({
+            message: "Parameter 'requestMessage' is not passed to the method 'send' of class 'RestMessageHandler'"
+          });
+        }
+        if (!requestMessage.method) {
+          throw new _restClientError2.default({
+            message: "Method is not defined in request message"
+          });
+        }
+        if (!context) {
+          throw new _restClientError2.default({
+            message: "Parameter 'context' is not passed to the method 'send' of class 'RestMessageHandler'"
+          });
+        }
+        if (!context.client) {
+          throw new _restClientError2.default({
+            message: "Rest client is not define in context"
+          });
+        }
+        var client = context.client;
+        httpRequest = new XMLHttpRequest();
+        var url = new _urlBuilder2.default({
+          scheme: client.scheme,
+          host: client.host,
+          port: client.port,
+          path: requestMessage.path,
+          queryString: requestMessage.queryString
+        }).toString();
+        httpRequest.open(requestMessage.method, url, true);
+        httpRequest.timeout = client.timeout;
+        if ('timeout' in requestMessage && requestMessage.timeout > 0) {
+          httpRequest.timeout = requestMessage.timeout;
+        }
+        this._setRequestHeaders(requestMessage, httpRequest, context);
+        httpRequest.onreadystatechange = () => {
+          if (httpRequest && httpRequest.readyState === 4) {
+            this._onReceive(requestMessage, httpRequest, context).then(responseMessage => {
+              return this._onAfterReceive(responseMessage, context);
+            }).then(responseMessage => {
+              resolve(responseMessage);
+            }).catch(reason => {
+              reject(reason);
+            });
+          }
+        };
+        var content = null;
+        if (requestMessage.content) {
+          var contentType = requestMessage.contentType;
+          if (contentType) {
+            contentType = client.defaultContentType;
+          }
+          var mediaTypeFormatter = client.getMediaTypeFormatter(contentType);
+          if (mediaTypeFormatter) {
+            content = mediaTypeFormatter.write(requestMessage.content);
+          } else {
+            content = requestMessage.content;
+          }
+          httpRequest.setRequestHeader('Content-Type', contentType);
+        }
+        this._onBeforeSend(requestMessage, context).then(() => {
+          return this._onSend(content, httpRequest, context);
+        }).catch(reason => {
+          reject(reason);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  _setRequestHeaders(requestMessage, httpRequest, context) {
+    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    if (requestMessage.accept) {
+      httpRequest.setRequestHeader('Accept', requestMessage.accept);
+    } else {
+      httpRequest.setRequestHeader('Accept', context.client.defaultContentType);
+    }
+    if (requestMessage.headers) {
+      for (var name in requestMessage.headers) {
+        httpRequest.setRequestHeader(name, requestMessage.headers[headerName]);
+      }
+    }
+  }
+
+  _getResponseHeaders(httpRequest) {
+    var headers = {};
+    var text = httpRequest.getAllResponseHeaders();
+    if (text) {
+      var pairs = text.split('\r\n');
+      pairs.forEach(pair => {
+        if (pair) {
+          var name = pair.substring(0, pair.indexOf(':'));
+          var value = pair.substring(pair.indexOf(':') + 2, pair.length);
+          headers[name] = value;
+        }
+      });
+    }
+    return headers;
+  }
+
+  _onSend(content, httpRequest, context) {
+    return new Promise((resolve, reject) => {
+      if (content) {
+        httpRequest.send(content);
+      } else {
+        httpRequest.send();
+      }
+      resolve();
+    });
+  }
+
+  _onReceive(requestMessage, httpRequest, context) {
+    return new Promise((resolve, reject) => {
+      if (httpRequest.status !== 0) {
+        var responseMessage = new _restResponseMessage2.default({
+          requestMessage: requestMessage,
+          status: httpRequest.status,
+          statusText: httpRequest.statusText,
+          headers: this._getResponseHeaders(httpRequest)
+        });
+        if (httpRequest.responseText) {
+          var content = null;
+          var contentType = httpRequest.getResponseHeader("Content-Type");
+          var mediaTypeFormatter = context.client.getMediaTypeFormatter(contentType);
+          if (mediaTypeFormatter) {
+            content = mediaTypeFormatter.read(httpRequest.responseText);
+          } else {
+            content = httpRequest.responseText;
+          }
+          responseMessage.contentType = contentType;
+          responseMessage.content = content;
+        }
+        resolve(responseMessage);
+      } else {
+        reject(new _restClientError2.default({
+          message: "Failed to connect to the server"
+        }));
+      }
+    });
+  }
+
+  _onBeforeSend(requestMessage, context) {
+    return Promise.resolve(requestMessage);
+  }
+
+  _onAfterReceive(responseMessage, context) {
+    return Promise.resolve(responseMessage);
+  }
+
+}
+exports.default = RestMessageHandler;
+
+},{"cancellation-token":4,"options":7,"rest-client-error":15,"rest-message-handler-base":18,"rest-request-message":21,"rest-response-message":22,"url-builder":25}],20:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+var _cancellationToken = require('cancellation-token');
+
+var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RestMessageInterceptorBase {
 
   constructor(options) {
     _options2.default.assign(this, options);
   }
 
-  beforeSend(requestMessage) {
+  beforeSend(requestMessage, context, cancellationToken = _cancellationToken2.default.none) {
     return Promise.resolve(requestMessage);
   }
 
-  afterSend(responseMessage) {
+  afterSend(responseMessage, context, cancellationToken = _cancellationToken2.default.none) {
     return Promise.resolve(responseMessage);
   }
 
 }
-exports.default = RestMessageInterceptor;
+exports.default = RestMessageInterceptorBase;
 
-},{"options":7}],18:[function(require,module,exports){
+},{"cancellation-token":4,"options":7}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1434,7 +1626,7 @@ class RestRequestMessage {
 }
 exports.default = RestRequestMessage;
 
-},{"options":7}],19:[function(require,module,exports){
+},{"options":7}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1462,17 +1654,13 @@ class RestResponseMessage {
 }
 exports.default = RestResponseMessage;
 
-},{"options":7}],20:[function(require,module,exports){
+},{"options":7}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatter = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.RestMessageInterceptor = exports.UrlBuilder = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = exports.RestClientError = undefined;
-
-var _restClientError = require('rest-client-error');
-
-var _restClientError2 = _interopRequireDefault(_restClientError);
+exports.QueryTranslator = exports.QueryFactory = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.RestMessageInterceptorBase = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatterBase = exports.RestMessageHandler = exports.RestMessageHandlerBase = exports.RestMessageContext = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.UrlBuilder = exports.RestClientError = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = undefined;
 
 var _options = require('options');
 
@@ -1486,13 +1674,13 @@ var _cancellationTokenSource = require('cancellation-token-source');
 
 var _cancellationTokenSource2 = _interopRequireDefault(_cancellationTokenSource);
 
+var _restClientError = require('rest-client-error');
+
+var _restClientError2 = _interopRequireDefault(_restClientError);
+
 var _urlBuilder = require('url-builder');
 
 var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
-
-var _restMessageInterceptor = require('rest-message-interceptor');
-
-var _restMessageInterceptor2 = _interopRequireDefault(_restMessageInterceptor);
 
 var _restClient = require('rest-client');
 
@@ -1514,6 +1702,30 @@ var _restBulkResponseMessage = require('rest-bulk-response-message');
 
 var _restBulkResponseMessage2 = _interopRequireDefault(_restBulkResponseMessage);
 
+var _restMessageContext = require('rest-message-context');
+
+var _restMessageContext2 = _interopRequireDefault(_restMessageContext);
+
+var _restMessageHandlerBase = require('rest-message-handler-base');
+
+var _restMessageHandlerBase2 = _interopRequireDefault(_restMessageHandlerBase);
+
+var _restMessageHandler = require('rest-message-handler');
+
+var _restMessageHandler2 = _interopRequireDefault(_restMessageHandler);
+
+var _mediaTypeFormatterBase = require('media-type-formatter-base');
+
+var _mediaTypeFormatterBase2 = _interopRequireDefault(_mediaTypeFormatterBase);
+
+var _jsonMediaTypeFormatter = require('json-media-type-formatter');
+
+var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
+
+var _restMessageInterceptorBase = require('rest-message-interceptor-base');
+
+var _restMessageInterceptorBase2 = _interopRequireDefault(_restMessageInterceptorBase);
+
 var _batch = require('batch');
 
 var _batch2 = _interopRequireDefault(_batch);
@@ -1534,14 +1746,6 @@ var _repository = require('repository');
 
 var _repository2 = _interopRequireDefault(_repository);
 
-var _mediaTypeFormatter = require('media-type-formatter');
-
-var _mediaTypeFormatter2 = _interopRequireDefault(_mediaTypeFormatter);
-
-var _jsonMediaTypeFormatter = require('json-media-type-formatter');
-
-var _jsonMediaTypeFormatter2 = _interopRequireDefault(_jsonMediaTypeFormatter);
-
 var _queryFactory = require('query-factory');
 
 var _queryFactory2 = _interopRequireDefault(_queryFactory);
@@ -1552,28 +1756,31 @@ var _queryTranslator2 = _interopRequireDefault(_queryTranslator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.RestClientError = _restClientError2.default;
 exports.Options = _options2.default;
 exports.CancellationToken = _cancellationToken2.default;
 exports.CancellationTokenSource = _cancellationTokenSource2.default;
+exports.RestClientError = _restClientError2.default;
 exports.UrlBuilder = _urlBuilder2.default;
-exports.RestMessageInterceptor = _restMessageInterceptor2.default;
 exports.RestClient = _restClient2.default;
 exports.RestRequestMessage = _restRequestMessage2.default;
 exports.RestResponseMessage = _restResponseMessage2.default;
 exports.RestBulkRequestMessage = _restBulkRequestMessage2.default;
 exports.RestBulkResponseMessage = _restBulkResponseMessage2.default;
+exports.RestMessageContext = _restMessageContext2.default;
+exports.RestMessageHandlerBase = _restMessageHandlerBase2.default;
+exports.RestMessageHandler = _restMessageHandler2.default;
+exports.MediaTypeFormatterBase = _mediaTypeFormatterBase2.default;
+exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
+exports.RestMessageInterceptorBase = _restMessageInterceptorBase2.default;
 exports.Batch = _batch2.default;
 exports.QueryBase = _queryBase2.default;
 exports.Query = _query2.default;
 exports.SortDirection = _sortDirection2.default;
 exports.Repository = _repository2.default;
-exports.MediaTypeFormatter = _mediaTypeFormatter2.default;
-exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-interceptor":17,"rest-request-message":18,"rest-response-message":19,"sort-direction":21,"url-builder":22}],21:[function(require,module,exports){
+},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter-base":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-context":17,"rest-message-handler":19,"rest-message-handler-base":18,"rest-message-interceptor-base":20,"rest-request-message":21,"rest-response-message":22,"sort-direction":24,"url-builder":25}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1585,7 +1792,7 @@ exports.default = SortDirection;
 SortDirection.Asc = 1;
 SortDirection.Desc = -1;
 
-},{}],22:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1621,10 +1828,10 @@ class UrlBuilder {
     } else {
       url += 'localhost';
     }
-    if (this.port && this.port != 80) {
+    if (this.port && this.port !== 80) {
       url += `:${ this.port }`;
     }
-    if (this.path && this.path != '/') {
+    if (this.path && this.path !== '/') {
       if (!this.path.startsWith('/')) {
         path += '/' + this.path;
       } else {
@@ -1640,7 +1847,7 @@ class UrlBuilder {
 }
 exports.default = UrlBuilder;
 
-},{"options":7}]},{},[20])(20)
+},{"options":7}]},{},[23])(23)
 });
 
 

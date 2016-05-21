@@ -1,7 +1,7 @@
 import Options from 'options';
 import RestClientError from 'rest-client-error';
 
-export default class MediaTypeFormatter {
+export default class MediaTypeFormatterBase {
 
   constructor(options) {
     this.mediaTypes = [];
@@ -9,23 +9,15 @@ export default class MediaTypeFormatter {
     Options.assign(this, options);
   }
 
-  canReadType(objectType) {
-    return true;
-  }
-
-  carWriteType(objectType) {
-    return true;
-  }
-
   read(content, objectType) {
     throw new RestClientError({
-      message: "Method 'read' is not supported for class 'MediaTypeFormatter'"
+      message: "Method 'read' is not supported for class 'MediaTypeFormatterBase'"
     });
   }
 
   write(value) {
     throw new RestClientError({
-      message: "Method 'write' is not supported for class 'MediaTypeFormatter'"
+      message: "Method 'write' is not supported for class 'MediaTypeFormatterBase'"
     });
   }
 

@@ -1,6 +1,6 @@
 import Options from 'options';
 
-export class RestClientError {
+export default class RestClientError {
 
   constructor(options) {
     this.name = 'RestClientError';

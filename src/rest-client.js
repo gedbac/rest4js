@@ -1,14 +1,15 @@
 import Options from 'options';
 import CancellationToken from 'cancellation-token';
-import UrlBuilder from 'url-builder';
-import RestRequestMessage from 'rest-request-message';
-import RestResponseMessage from 'rest-response-message';
-import RestBulkRequestMessage from 'rest-bulk-request-message';
+import RestClientError from 'rest-client-error';
+import RestMessageContext from 'rest-message-context';
 import RestBulkResponseMessage from 'rest-bulk-response-message';
+import MediaTypeFormatterBase from 'media-type-formatter-base';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
+import RestMessageHandlerBase from 'rest-message-handler-base';
+import RestMessageHandler from 'rest-message-handler';
 import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
-import RestClientError from 'rest-client-error';
+import UrlBuilder from 'url-builder';
 
 export default class RestClient {
 
@@ -17,64 +18,85 @@ export default class RestClient {
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
-    this.defaultContentType = 'application/json; charset=utf-8';
-    this.messageHandlers = [];
+    this.defaultContentType = 'application/json';
     this.mediaTypeFormatters = [
       new JsonMediaTypeFormatter()
+    ];
+    this.messageHandlers = [
+      new RestMessageHandler()
     ];
     this.services = {
       queryFactory: new QueryFactory(),
       queryTranslator: new QueryTranslator()
     };
-    this.interceptors = [];
+    this.messageInterceptors = [
+
+    ];
     Options.assign(this, options);
   }
 
   send(requestMessage, cancellationToken = CancellationToken.none) {
     return new Promise((resolve, reject) => {
       try {
-        if (!requestMessage.method) {
-          throw new RestClientError({
-            message: "Request doesn't have method defined"
-          });
-        }
-        var httpRequest = null;
         cancellationToken.throwIfCanceled();
-        cancellationToken.register(() => {
-          try {
-            if (httpRequest) {
-              httpRequest.abort();
-            }
-            cancellationToken.throwIfCanceled();
-          } catch (ex) {
-            reject(ex);
-          }
-        });
-        httpRequest = new XMLHttpRequest();
-        if (requestMessage && requestMessage instanceof RestRequestMessage) {
-          this._sendMessage(requestMessage, httpRequest, resolve, reject);
-        } else if (requestMessage && requestMessage instanceof RestBulkRequestMessage) {
-          this._sendBulkMessage(requestMessage, httpRequest, resolve, reject);
-        } else {
+        if (!requestMessage) {
           throw new RestClientError({
-            message: "Message is undefined or it's type is invalid"
+            message: "Parameter 'requestMessage' is not passed to the method 'send' of class 'RestClient'"
           });
         }
-      } catch (ex) {
-        reject(ex);
+        var messageHandler = this.getMessageHandler(requestMessage);
+        if (!messageHandler) {
+          throw new RestClientError({
+            message: `Message handler is not defined for request message of type '${requestMessage.constructor.name}'`
+          });
+        }
+        var context = new RestMessageContext({
+          client: this
+        });
+        messageHandler
+          .send(requestMessage, context, cancellationToken)
+          .then(resolve, reject);
+      } catch (error) {
+        reject(error);
       }
     });
   }
 
-  use(interceptor) {
+  use(value) {
+    if (value) {
+      if (value instanceof MediaTypeFormatterBase) {
+        this.mediaTypeFormatters.push(value);
+      } else if (value instanceof RestMessageHandlerBase) {
+        this.messageHandlers.push(value);
+      } else if (value instanceof RestMessageInterceptorBase) {
+        this.messageInterceptors.push(value);
+      }
+    }
     return this;
+  }
+
+  getMessageHandler(requestMessage) {
+    var messageHandler = null;
+    if (requestMessage && this.messageHandlers && this.messageHandlers instanceof Array) {
+      for (var i = 0; i < this.messageHandlers.length; i++) {
+        if (this.messageHandlers[i].messageTypes &&
+          this.messageHandlers[i].messageTypes instanceof Array &&
+          this.messageHandlers[i].messageTypes.indexOf(requestMessage.constructor) !== -1) {
+          messageHandler = this.messageHandlers[i];
+          break;
+        }
+      }
+    }
+    return messageHandler;
   }
 
   getMediaTypeFormatter(contentType) {
     var mediaTypeFormatter = null;
-    if (contentType && this.mediaTypeFormatters && this.mediaTypeFormatters.length > 0) {
+    if (contentType && this.mediaTypeFormatters && this.mediaTypeFormatters instanceof Array) {
       for (var i = 0; i < this.mediaTypeFormatters.length; i++) {
-        if (this.mediaTypeFormatters[i].contentType === contentType) {
+        if (this.mediaTypeFormatters[i].mediaTypes &&
+          this.mediaTypeFormatters[i].mediaTypes instanceof Array &&
+          this.mediaTypeFormatters[i].mediaTypes.indexOf(contentType) !== -1) {
           mediaTypeFormatter = this.mediaTypeFormatters[i];
           break;
         }
@@ -83,82 +105,12 @@ export default class RestClient {
     return mediaTypeFormatter;
   }
 
-  _sendMessage(requestMessage, httpRequest, resolve, reject) {
-    var url = new UrlBuilder({
-      scheme: this.scheme,
-      host: this.host,
-      port: this.port,
-      path: requestMessage.path,
-      queryString: requestMessage.queryString
-    }).toString();
-    httpRequest.open(requestMessage.method, url, true);
-    httpRequest.timeout = this.timeout;
-    if ('timeout' in requestMessage && requestMessage.timeout > 0) {
-      httpRequest.timeout = requestMessage.timeout;
-    }
-    if (!requestMessage.accept) {
-      requestMessage.accept = this.defaultContentType;
-    }
-    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    if (requestMessage.headers) {
-      for (var headerName in requestMessage.headers) {
-        httpRequest.setRequestHeader(headerName, requestMessage.headers[headerName]);
-      }
-    }
-    //httpRequest.setRequestHeader('Cache-Control', 'no-cache');
-    httpRequest.onreadystatechange = () => {
-      if (httpRequest && httpRequest.readyState === 4) {
-        this._onReceiveMessage(requestMessage, httpRequest, resolve, reject);
-      }
-    };
-    if (requestMessage.content) {
-      var content = null;
-      var contentType = requestMessage.contentType;
-      if (contentType) {
-        contentType = this.defaultContentType;
-      }
-      var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
-      if (mediaTypeFormatter) {
-        content = mediaTypeFormatter.write(requestMessage.content);
-      } else {
-        content = requestMessage.content;
-      }
-      httpRequest.setRequestHeader('Content-Type', contentType);
-      httpRequest.send(content);
-    } else {
-      httpRequest.send();
-    }
-  }
-
-  _onReceiveMessage(requestMessage, httpRequest, resolve, reject) {
-    if (httpRequest.status !== 0) {
-      var content = null;
-      var contentType = httpRequest.getResponseHeader("Content-Type");
-      if (httpRequest.responseText) {
-        var mediaTypeFormatter = this.getMediaTypeFormatter(contentType);
-        if (mediaTypeFormatter) {
-          content = mediaTypeFormatter.read(httpRequest.responseText);
-        } else {
-          content = httpRequest.responseText;
-        }
-      }
-      var headers = this._getResponseHeaders(httpRequest);
-      resolve(new RestResponseMessage({
-        requestMessage: requestMessage,
-        status: httpRequest.status,
-        statusText: httpRequest.statusText,
-        headers: headers,
-        content: content,
-        contentType: contentType
-      }));
-    } else {
-      reject(new RestClientError({
-        message: "Failed to connect to the server"
-      }));
-    }
-  }
-
   _sendBulkMessage(bulkRequestMessage, httpRequest, resolve, reject) {
+    if (!bulkRequestMessage.method) {
+      throw new RestClientError({
+        message: "Request doesn't have method defined"
+      });
+    }
     var url = new UrlBuilder({
       scheme: this.scheme,
       host: this.host,
@@ -239,33 +191,6 @@ export default class RestClient {
     resolve(new RestBulkResponseMessage({
       requestMessage: bulkRequestMessage
     }));
-  }
-
-  _getUrl(scheme, host, port, path, queryString) {
-    var url = '';
-    if (scheme) {
-      url += `${scheme}://`;
-    } else {
-      url += 'http://';
-    }
-    if (host) {
-      url += `${host}`;
-    } else {
-      url += 'localhost';
-    }
-    if (port && port !== 80) {
-      url += `:${port}`;
-    }
-    if (path) {
-      if (!path.startsWith('/')) {
-        path = '/' + path;
-      }
-      url += path;
-    }
-    if (queryString) {
-      url += '?' + queryString;
-    }
-    return url;
   }
 
   _getResponseHeaders(httpRequest) {

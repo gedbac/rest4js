@@ -22,27 +22,25 @@
           var client = new rest.RestClient({
             port: 8080
           });
-          //client.use(new NoCaching());
-
-          // var cancellationTokenSource = new rest.CancellationTokenSource();
-          // var requestMessage = new rest.RestRequestMessage({
-          //   method: 'GET',
-          //   path: '/api/users',
-          //   objectType: User
-          // });
-          // client
-          //   .send(requestMessage, cancellationTokenSource.token)
-          //   .then(responseMessage => {
-          //     console.log("Users has been fetched successfuly");
-          //   })
-          //   .catch(reason => {
-          //     if (cancellationTokenSource.canceled) {
-          //       console.log(reason.message || reason);
-          //     } else {
-          //       console.error(reason.message || reason);
-          //     }
-          //   });
-          // TOOD: Cancellation is not work as expected...
+          // SIMPLE MESSAGE:
+          var cancellationTokenSource = new rest.CancellationTokenSource();
+          var requestMessage = new rest.RestRequestMessage({
+            method: 'GET',
+            path: '/api/users',
+            objectType: User
+          });
+          client
+            .send(requestMessage, cancellationTokenSource.token)
+            .then(responseMessage => {
+              console.log("Users has been fetched successfuly");
+            })
+            .catch(reason => {
+              if (cancellationTokenSource.canceled) {
+                console.log(reason.message || reason);
+              } else {
+                console.error(reason.message || reason);
+              }
+            });
           //cancellationTokenSource.cancelAfter(0);
 
           // var cancellationTokenSource = new rest.CancellationTokenSource();
@@ -64,30 +62,30 @@
           //   });
 
           // BULK MESSAGE:
-          var cancellationTokenSource = new rest.CancellationTokenSource();
-          var bulkRequestMessage = new rest.RestBulkRequestMessage({
-            path: '/api/batch'
-          });
-          bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
-            method: 'GET',
-            path: '/api/users/1'
-          }));
-          bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
-            method: 'GET',
-            path: '/api/users'
-          }));
-          client
-            .send(bulkRequestMessage, cancellationTokenSource.token)
-            .then(bulkResponseMessage => {
-              console.log("Batch has been executed successfuly");
-            })
-            .catch(reason => {
-              if (cancellationTokenSource.canceled) {
-                console.log(reason.message || reason);
-              } else {
-                console.error(reason.message || reason);
-              }
-            });
+          // var cancellationTokenSource = new rest.CancellationTokenSource();
+          // var bulkRequestMessage = new rest.RestBulkRequestMessage({
+          //   path: '/api/batch'
+          // });
+          // bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
+          //   method: 'GET',
+          //   path: '/api/users/1'
+          // }));
+          // bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
+          //   method: 'GET',
+          //   path: '/api/users'
+          // }));
+          // client
+          //   .send(bulkRequestMessage, cancellationTokenSource.token)
+          //   .then(bulkResponseMessage => {
+          //     console.log("Batch has been executed successfuly");
+          //   })
+          //   .catch(reason => {
+          //     if (cancellationTokenSource.canceled) {
+          //       console.log(reason.message || reason);
+          //     } else {
+          //       console.error(reason.message || reason);
+          //     }
+          //   });
 
           // Bulk call:
           // var requestMessage1 = new rest.RestRequestMessage();

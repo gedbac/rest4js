@@ -1,3 +1,4 @@
+import Options from 'options';
 import QueryBase from 'query-base';
 import SortDirection from 'sort-direction';
 import RestClientError from 'rest-client-error';
@@ -5,9 +6,10 @@ import RestClientError from 'rest-client-error';
 export default class Query extends QueryBase {
 
   constructor(options) {
-    super(options);
+    super();
     this.sorting = null;
     this.transformation = null;
+    Options.assign(this, options);
   }
 
   fields(fields) {
