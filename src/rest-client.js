@@ -12,6 +12,7 @@ import BasicAuthentication from 'basic-authentication';
 import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
 import UrlBuilder from 'url-builder';
+import RetryPolicy from 'retry-policy';
 
 export default class RestClient {
 
@@ -23,6 +24,7 @@ export default class RestClient {
     this.username = null;
     this.password = null;
     this.defaultContentType = 'application/json';
+    this.retryPolicy = new RetryPolicy();
     this.mediaTypeFormatters = [
       new JsonMediaTypeFormatter()
     ];

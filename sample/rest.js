@@ -790,7 +790,7 @@ class Query extends _queryBase2.default {
 }
 exports.default = Query;
 
-},{"options":9,"query-base":10,"rest-client-error":17,"sort-direction":26}],14:[function(require,module,exports){
+},{"options":9,"query-base":10,"rest-client-error":17,"sort-direction":27}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1176,6 +1176,10 @@ var _urlBuilder = require('url-builder');
 
 var _urlBuilder2 = _interopRequireDefault(_urlBuilder);
 
+var _retryPolicy = require('retry-policy');
+
+var _retryPolicy2 = _interopRequireDefault(_retryPolicy);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class RestClient {
@@ -1188,6 +1192,7 @@ class RestClient {
     this.username = null;
     this.password = null;
     this.defaultContentType = 'application/json';
+    this.retryPolicy = new _retryPolicy2.default();
     this.mediaTypeFormatters = [new _jsonMediaTypeFormatter2.default()];
     this.messageHandlers = [new _restMessageHandler2.default()];
     this.services = {
@@ -1369,7 +1374,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"basic-authentication":1,"cancellation-token":5,"json-media-type-formatter":6,"media-type-formatter-base":7,"no-caching":8,"options":9,"query-factory":11,"query-translator":12,"rest-bulk-response-message":16,"rest-client-error":17,"rest-message-context":19,"rest-message-handler":21,"rest-message-handler-base":20,"url-builder":27}],19:[function(require,module,exports){
+},{"basic-authentication":1,"cancellation-token":5,"json-media-type-formatter":6,"media-type-formatter-base":7,"no-caching":8,"options":9,"query-factory":11,"query-translator":12,"rest-bulk-response-message":16,"rest-client-error":17,"rest-message-context":19,"rest-message-handler":21,"rest-message-handler-base":20,"retry-policy":26,"url-builder":28}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1667,7 +1672,7 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
 }
 exports.default = RestMessageHandler;
 
-},{"cancellation-token":5,"options":9,"rest-client-error":17,"rest-message-handler-base":20,"rest-request-message":23,"rest-response-message":24,"url-builder":27}],22:[function(require,module,exports){
+},{"cancellation-token":5,"options":9,"rest-client-error":17,"rest-message-handler-base":20,"rest-request-message":23,"rest-response-message":24,"url-builder":28}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1896,7 +1901,29 @@ exports.Repository = _repository2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"basic-authentication":1,"batch":3,"cancellation-token":5,"cancellation-token-source":4,"json-media-type-formatter":6,"media-type-formatter-base":7,"no-caching":8,"options":9,"query":13,"query-base":10,"query-factory":11,"query-translator":12,"repository":14,"rest-bulk-request-message":15,"rest-bulk-response-message":16,"rest-client":18,"rest-client-error":17,"rest-message-context":19,"rest-message-handler":21,"rest-message-handler-base":20,"rest-message-interceptor-base":22,"rest-request-message":23,"rest-response-message":24,"sort-direction":26,"url-builder":27}],26:[function(require,module,exports){
+},{"basic-authentication":1,"batch":3,"cancellation-token":5,"cancellation-token-source":4,"json-media-type-formatter":6,"media-type-formatter-base":7,"no-caching":8,"options":9,"query":13,"query-base":10,"query-factory":11,"query-translator":12,"repository":14,"rest-bulk-request-message":15,"rest-bulk-response-message":16,"rest-client":18,"rest-client-error":17,"rest-message-context":19,"rest-message-handler":21,"rest-message-handler-base":20,"rest-message-interceptor-base":22,"rest-request-message":23,"rest-response-message":24,"sort-direction":27,"url-builder":28}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _options = require('options');
+
+var _options2 = _interopRequireDefault(_options);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RetryPolicy {
+
+  constructor(options) {
+    _options2.default.assign(this, options);
+  }
+
+}
+exports.default = RetryPolicy;
+
+},{"options":9}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1908,7 +1935,7 @@ exports.default = SortDirection;
 SortDirection.Asc = 1;
 SortDirection.Desc = -1;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
