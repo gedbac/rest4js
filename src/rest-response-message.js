@@ -6,7 +6,7 @@ export default class RestResponseMessage {
     this.requestMessage = null;
     this.status = null;
     this.statusText = null;
-    this.headers = null;
+    this.headers = {};
     this.content = null;
     this.contentType = null;
     Options.assign(this, options);

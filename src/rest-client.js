@@ -7,6 +7,8 @@ import MediaTypeFormatterBase from 'media-type-formatter-base';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
 import RestMessageHandlerBase from 'rest-message-handler-base';
 import RestMessageHandler from 'rest-message-handler';
+import NoCaching from 'no-caching';
+import BasicAuthentication from 'basic-authentication';
 import QueryFactory from 'query-factory';
 import QueryTranslator from 'query-translator';
 import UrlBuilder from 'url-builder';
@@ -18,6 +20,8 @@ export default class RestClient {
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
+    this.username = null;
+    this.password = null;
     this.defaultContentType = 'application/json';
     this.mediaTypeFormatters = [
       new JsonMediaTypeFormatter()
@@ -30,7 +34,8 @@ export default class RestClient {
       queryTranslator: new QueryTranslator()
     };
     this.messageInterceptors = [
-
+      new NoCaching(),
+      new BasicAuthentication()
     ];
     Options.assign(this, options);
   }

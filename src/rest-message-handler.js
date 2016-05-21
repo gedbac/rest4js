@@ -50,7 +50,6 @@ export default class RestMessageHandler extends RestMessageHandlerBase {
           });
         }
         var client = context.client;
-        httpRequest = new XMLHttpRequest();
         var url = new UrlBuilder({
           scheme: client.scheme,
           host: client.host,
@@ -58,17 +57,13 @@ export default class RestMessageHandler extends RestMessageHandlerBase {
           path: requestMessage.path,
           queryString: requestMessage.queryString
         }).toString();
+        httpRequest = new XMLHttpRequest();
         httpRequest.open(requestMessage.method, url, true);
-        httpRequest.timeout = client.timeout;
-        if ('timeout' in requestMessage && requestMessage.timeout > 0) {
-          httpRequest.timeout = requestMessage.timeout;
-        }
-        this._setRequestHeaders(requestMessage, httpRequest, context);
         httpRequest.onreadystatechange = () => {
           if (httpRequest && httpRequest.readyState === 4) {
             this._onReceive(requestMessage, httpRequest, context)
               .then(responseMessage => {
-                return this._onAfterReceive(responseMessage, context);
+                return this._onAfterReceive(responseMessage, context, cancellationToken);
               })
               .then(responseMessage => {
                 resolve(responseMessage);
@@ -78,23 +73,9 @@ export default class RestMessageHandler extends RestMessageHandlerBase {
               });
           }
         };
-        var content = null;
-        if (requestMessage.content) {
-          var contentType = requestMessage.contentType;
-          if (contentType) {
-            contentType = client.defaultContentType;
-          }
-          var mediaTypeFormatter = client.getMediaTypeFormatter(contentType);
-          if (mediaTypeFormatter) {
-            content = mediaTypeFormatter.write(requestMessage.content);
-          } else {
-            content = requestMessage.content;
-          }
-          httpRequest.setRequestHeader('Content-Type', contentType);
-        }
-        this._onBeforeSend(requestMessage, context)
+        this._onBeforeSend(requestMessage, context, cancellationToken)
           .then(() => {
-            return this._onSend(content, httpRequest, context);
+            return this._onSend(requestMessage, httpRequest, context);
           })
           .catch(reason => {
             reject(reason);
@@ -114,7 +95,7 @@ export default class RestMessageHandler extends RestMessageHandlerBase {
     }
     if (requestMessage.headers) {
       for (var name in requestMessage.headers) {
-        httpRequest.setRequestHeader(name, requestMessage.headers[headerName]);
+        httpRequest.setRequestHeader(name, requestMessage.headers[name]);
       }
     }
   }
@@ -135,14 +116,37 @@ export default class RestMessageHandler extends RestMessageHandlerBase {
     return headers;
   }
 
-  _onSend(content, httpRequest, context) {
+  _onSend(requestMessage, httpRequest, context) {
     return new Promise((resolve, reject) => {
-      if (content) {
-        httpRequest.send(content);
-      } else {
-        httpRequest.send();
+      try {
+        httpRequest.timeout = context.client.timeout;
+        if ('timeout' in requestMessage && requestMessage.timeout > 0) {
+          httpRequest.timeout = requestMessage.timeout;
+        }
+        var content = null;
+        if (requestMessage.content) {
+          var contentType = requestMessage.contentType;
+          if (contentType) {
+            contentType = context.client.defaultContentType;
+          }
+          var mediaTypeFormatter = context.client.getMediaTypeFormatter(contentType);
+          if (mediaTypeFormatter) {
+            content = mediaTypeFormatter.write(requestMessage.content);
+          } else {
+            content = requestMessage.content;
+          }
+          requestMessage['Content-Type'] = contentType;
+        }
+        this._setRequestHeaders(requestMessage, httpRequest, context);
+        if (content) {
+          httpRequest.send(content);
+        } else {
+          httpRequest.send();
+        }
+        resolve();
+      } catch(error) {
+        reject(error);
       }
-      resolve();
     });
   }
 
@@ -176,11 +180,31 @@ export default class RestMessageHandler extends RestMessageHandlerBase {
     });
   }
 
-  _onBeforeSend(requestMessage, context) {
+  _onBeforeSend(requestMessage, context, cancellationToken) {
+    if (context.client.messageInterceptors) {
+      var messageInterceptors = context.client.messageInterceptors;
+      var p = Promise.resolve(requestMessage);
+      messageInterceptors.forEach(interceptor => {
+        p.then(message => {
+          return interceptor.beforeSend(message, context, cancellationToken);
+        });
+      });
+      return p;
+    }
     return Promise.resolve(requestMessage);
   }
 
-  _onAfterReceive(responseMessage, context) {
+  _onAfterReceive(responseMessage, context, cancellationToken) {
+    if (context.client.messageInterceptors) {
+      var messageInterceptors = context.client.messageInterceptors;
+      var p = Promise.resolve(responseMessage);
+      messageInterceptors.forEach(interceptor => {
+        p.then(message => {
+          return interceptor.afterReceive(message, context, cancellationToken);
+        });
+      });
+      return p;
+    }
     return Promise.resolve(responseMessage);
   }
 

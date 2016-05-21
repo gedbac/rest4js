@@ -11,7 +11,7 @@ export default class RestMessageInterceptorBase {
     return Promise.resolve(requestMessage);
   }
 
-  afterSend(responseMessage, context, cancellationToken = CancellationToken.none) {
+  afterReceive(responseMessage, context, cancellationToken = CancellationToken.none) {
     return Promise.resolve(responseMessage);
   }
 

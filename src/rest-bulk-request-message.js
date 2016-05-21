@@ -8,7 +8,7 @@ export default class RestBulkRequestMessage {
     this.method = 'POST';
     this.path = null;
     this.queryString = null;
-    this.headers = null;
+    this.headers = {};
     this.timeout = null;
     this.requestMessages = [];
     Options.assign(this, options);

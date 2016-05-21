@@ -20,10 +20,12 @@
             }
           }
           var client = new rest.RestClient({
-            port: 8080
+            port: 8080,
+            username: 'admin',
+            password: 'pass'
           });
-          // SIMPLE MESSAGE:
           var cancellationTokenSource = new rest.CancellationTokenSource();
+          // SIMPLE MESSAGE:
           var requestMessage = new rest.RestRequestMessage({
             method: 'GET',
             path: '/api/users',
@@ -43,23 +45,23 @@
             });
           //cancellationTokenSource.cancelAfter(0);
 
-          // var cancellationTokenSource = new rest.CancellationTokenSource();
-          // var usersRepository = new rest.Repository({
-          //   client: client,
-          //   path: '/api/users',
-          //   objectType: User
-          // });
-          // usersRepository.get(null, cancellationTokenSource.token)
-          //   .then(users => {
-          //     console.log("Users has been fetched successfuly");
-          //   })
-          //   .catch(reason => {
-          //     if (cancellationTokenSource.canceled) {
-          //       console.log(reason.message || reason);
-          //     } else {
-          //       console.error(reason.message || reason);
-          //     }
-          //   });
+          // SIMPLE CALL TO REPOSITORY:
+          var usersRepository = new rest.Repository({
+            client: client,
+            path: '/api/users',
+            objectType: User
+          });
+          usersRepository.get(null, cancellationTokenSource.token)
+            .then(users => {
+              console.log("Users has been fetched successfuly");
+            })
+            .catch(reason => {
+              if (cancellationTokenSource.canceled) {
+                console.log(reason.message || reason);
+              } else {
+                console.error(reason.message || reason);
+              }
+            });
 
           // BULK MESSAGE:
           // var cancellationTokenSource = new rest.CancellationTokenSource();

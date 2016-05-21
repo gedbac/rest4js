@@ -14,7 +14,8 @@ import RestMessageHandler from 'rest-message-handler';
 import MediaTypeFormatterBase from 'media-type-formatter-base';
 import JsonMediaTypeFormatter from 'json-media-type-formatter';
 import RestMessageInterceptorBase from 'rest-message-interceptor-base';
-
+import NoCaching from 'no-caching';
+import BasicAuthentication from 'basic-authentication';
 import Batch from 'batch';
 import QueryBase from 'query-base';
 import Query from 'query';
@@ -40,6 +41,8 @@ export {
   MediaTypeFormatterBase,
   JsonMediaTypeFormatter,
   RestMessageInterceptorBase,
+  NoCaching,
+  BasicAuthentication,
 
   Batch,
   QueryBase,

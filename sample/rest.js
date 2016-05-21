@@ -5,6 +5,45 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _cancellationToken = require('cancellation-token');
+
+var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
+
+var _restMessageInterceptorBase = require('rest-message-interceptor-base');
+
+var _restMessageInterceptorBase2 = _interopRequireDefault(_restMessageInterceptorBase);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class BasicAuthentication extends _restMessageInterceptorBase2.default {
+
+  constructor(options) {
+    super(options);
+  }
+
+  beforeSend(requestMessage, context, cancellationToken = _cancellationToken2.default.none) {
+    return new Promise((resolve, reject) => {
+      if (context && context.client) {
+        var username = context.client.username;
+        var password = context.client.password;
+        if (username && password) {
+          requestMessage.headers['Authorization'] = `Basic ${ btoa(username + ':' + password) }`;
+        }
+        resolve(requestMessage);
+      }
+    });
+  }
+
+}
+exports.default = BasicAuthentication;
+
+},{"cancellation-token":5,"rest-message-interceptor-base":22}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _options = require('options');
 
 var _options2 = _interopRequireDefault(_options);
@@ -44,7 +83,7 @@ class BatchExecutionContext {
 }
 exports.default = BatchExecutionContext;
 
-},{"options":7}],2:[function(require,module,exports){
+},{"options":9}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -104,7 +143,7 @@ class Batch {
 }
 exports.default = Batch;
 
-},{"batch-execution-context":1,"cancellation-token":4,"rest-client-error":15}],3:[function(require,module,exports){
+},{"batch-execution-context":2,"cancellation-token":5,"rest-client-error":17}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -167,7 +206,7 @@ class CancellationTokenSource {
 }
 exports.default = CancellationTokenSource;
 
-},{"cancellation-token":4}],4:[function(require,module,exports){
+},{"cancellation-token":5}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -203,7 +242,7 @@ class CancellationToken {
 exports.default = CancellationToken;
 CancellationToken.none = new CancellationToken();
 
-},{"rest-client-error":15}],5:[function(require,module,exports){
+},{"rest-client-error":17}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -258,7 +297,7 @@ class JsonMediaTypeFormatter extends _mediaTypeFormatterBase2.default {
 }
 exports.default = JsonMediaTypeFormatter;
 
-},{"media-type-formatter-base":6,"options":7}],6:[function(require,module,exports){
+},{"media-type-formatter-base":7,"options":9}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -298,7 +337,40 @@ class MediaTypeFormatterBase {
 }
 exports.default = MediaTypeFormatterBase;
 
-},{"options":7,"rest-client-error":15}],7:[function(require,module,exports){
+},{"options":9,"rest-client-error":17}],8:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _cancellationToken = require('cancellation-token');
+
+var _cancellationToken2 = _interopRequireDefault(_cancellationToken);
+
+var _restMessageInterceptorBase = require('rest-message-interceptor-base');
+
+var _restMessageInterceptorBase2 = _interopRequireDefault(_restMessageInterceptorBase);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class NoCaching extends _restMessageInterceptorBase2.default {
+
+  constructor(options) {
+    super(options);
+  }
+
+  beforeSend(requestMessage, context, cancellationToken = _cancellationToken2.default.none) {
+    return new Promise((resolve, reject) => {
+      requestMessage.headers['Cache-Control'] = 'no-cache';
+      resolve(requestMessage);
+    });
+  }
+
+}
+exports.default = NoCaching;
+
+},{"cancellation-token":5,"rest-message-interceptor-base":22}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -319,7 +391,7 @@ class Options {
 }
 exports.default = Options;
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -451,7 +523,7 @@ class QueryBase {
 }
 exports.default = QueryBase;
 
-},{"cancellation-token":4,"options":7,"rest-client-error":15}],9:[function(require,module,exports){
+},{"cancellation-token":5,"options":9,"rest-client-error":17}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -473,7 +545,7 @@ class QueryFactory {
 }
 exports.default = QueryFactory;
 
-},{"query":11}],10:[function(require,module,exports){
+},{"query":13}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -570,7 +642,7 @@ class QueryTranslator {
 }
 exports.default = QueryTranslator;
 
-},{"rest-client-error":15,"rest-request-message":21}],11:[function(require,module,exports){
+},{"rest-client-error":17,"rest-request-message":23}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -718,7 +790,7 @@ class Query extends _queryBase2.default {
 }
 exports.default = Query;
 
-},{"options":7,"query-base":8,"rest-client-error":15,"sort-direction":24}],12:[function(require,module,exports){
+},{"options":9,"query-base":10,"rest-client-error":17,"sort-direction":26}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -882,7 +954,7 @@ class Repository {
 }
 exports.default = Repository;
 
-},{"cancellation-token":4,"options":7,"rest-client-error":15}],13:[function(require,module,exports){
+},{"cancellation-token":5,"options":9,"rest-client-error":17}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -909,7 +981,7 @@ class RestBulkRequestMessage {
     this.method = 'POST';
     this.path = null;
     this.queryString = null;
-    this.headers = null;
+    this.headers = {};
     this.timeout = null;
     this.requestMessages = [];
     _options2.default.assign(this, options);
@@ -931,7 +1003,7 @@ class RestBulkRequestMessage {
 }
 exports.default = RestBulkRequestMessage;
 
-},{"options":7,"rest-client-error":15,"rest-request-message":21}],14:[function(require,module,exports){
+},{"options":9,"rest-client-error":17,"rest-request-message":23}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -950,7 +1022,7 @@ class RestBulkResponseMessage {
     this.requestMessage = null;
     this.status = null;
     this.statusText = null;
-    this.headers = null;
+    this.headers = {};
     this.responseMessages = [];
     _options2.default.assign(this, options);
   }
@@ -958,7 +1030,7 @@ class RestBulkResponseMessage {
 }
 exports.default = RestBulkResponseMessage;
 
-},{"options":7}],15:[function(require,module,exports){
+},{"options":9}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1041,7 +1113,7 @@ class RestClientError {
 }
 exports.default = RestClientError;
 
-},{"options":7}],16:[function(require,module,exports){
+},{"options":9}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1084,6 +1156,14 @@ var _restMessageHandler = require('rest-message-handler');
 
 var _restMessageHandler2 = _interopRequireDefault(_restMessageHandler);
 
+var _noCaching = require('no-caching');
+
+var _noCaching2 = _interopRequireDefault(_noCaching);
+
+var _basicAuthentication = require('basic-authentication');
+
+var _basicAuthentication2 = _interopRequireDefault(_basicAuthentication);
+
 var _queryFactory = require('query-factory');
 
 var _queryFactory2 = _interopRequireDefault(_queryFactory);
@@ -1105,6 +1185,8 @@ class RestClient {
     this.host = 'localhost';
     this.port = 80;
     this.timeout = 30;
+    this.username = null;
+    this.password = null;
     this.defaultContentType = 'application/json';
     this.mediaTypeFormatters = [new _jsonMediaTypeFormatter2.default()];
     this.messageHandlers = [new _restMessageHandler2.default()];
@@ -1112,7 +1194,7 @@ class RestClient {
       queryFactory: new _queryFactory2.default(),
       queryTranslator: new _queryTranslator2.default()
     };
-    this.messageInterceptors = [];
+    this.messageInterceptors = [new _noCaching2.default(), new _basicAuthentication2.default()];
     _options2.default.assign(this, options);
   }
 
@@ -1287,7 +1369,7 @@ class RestClient {
 }
 exports.default = RestClient;
 
-},{"cancellation-token":4,"json-media-type-formatter":5,"media-type-formatter-base":6,"options":7,"query-factory":9,"query-translator":10,"rest-bulk-response-message":14,"rest-client-error":15,"rest-message-context":17,"rest-message-handler":19,"rest-message-handler-base":18,"url-builder":25}],17:[function(require,module,exports){
+},{"basic-authentication":1,"cancellation-token":5,"json-media-type-formatter":6,"media-type-formatter-base":7,"no-caching":8,"options":9,"query-factory":11,"query-translator":12,"rest-bulk-response-message":16,"rest-client-error":17,"rest-message-context":19,"rest-message-handler":21,"rest-message-handler-base":20,"url-builder":27}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1311,7 +1393,7 @@ class RestMessageContext {
 }
 exports.default = RestMessageContext;
 
-},{"options":7}],18:[function(require,module,exports){
+},{"options":9}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1348,7 +1430,7 @@ class RestMessageHandlerBase {
 }
 exports.default = RestMessageHandlerBase;
 
-},{"cancellation-token":4,"options":7,"rest-client-error":15}],19:[function(require,module,exports){
+},{"cancellation-token":5,"options":9,"rest-client-error":17}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1429,7 +1511,6 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
           });
         }
         var client = context.client;
-        httpRequest = new XMLHttpRequest();
         var url = new _urlBuilder2.default({
           scheme: client.scheme,
           host: client.host,
@@ -1437,16 +1518,12 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
           path: requestMessage.path,
           queryString: requestMessage.queryString
         }).toString();
+        httpRequest = new XMLHttpRequest();
         httpRequest.open(requestMessage.method, url, true);
-        httpRequest.timeout = client.timeout;
-        if ('timeout' in requestMessage && requestMessage.timeout > 0) {
-          httpRequest.timeout = requestMessage.timeout;
-        }
-        this._setRequestHeaders(requestMessage, httpRequest, context);
         httpRequest.onreadystatechange = () => {
           if (httpRequest && httpRequest.readyState === 4) {
             this._onReceive(requestMessage, httpRequest, context).then(responseMessage => {
-              return this._onAfterReceive(responseMessage, context);
+              return this._onAfterReceive(responseMessage, context, cancellationToken);
             }).then(responseMessage => {
               resolve(responseMessage);
             }).catch(reason => {
@@ -1454,22 +1531,8 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
             });
           }
         };
-        var content = null;
-        if (requestMessage.content) {
-          var contentType = requestMessage.contentType;
-          if (contentType) {
-            contentType = client.defaultContentType;
-          }
-          var mediaTypeFormatter = client.getMediaTypeFormatter(contentType);
-          if (mediaTypeFormatter) {
-            content = mediaTypeFormatter.write(requestMessage.content);
-          } else {
-            content = requestMessage.content;
-          }
-          httpRequest.setRequestHeader('Content-Type', contentType);
-        }
-        this._onBeforeSend(requestMessage, context).then(() => {
-          return this._onSend(content, httpRequest, context);
+        this._onBeforeSend(requestMessage, context, cancellationToken).then(() => {
+          return this._onSend(requestMessage, httpRequest, context);
         }).catch(reason => {
           reject(reason);
         });
@@ -1488,7 +1551,7 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
     }
     if (requestMessage.headers) {
       for (var name in requestMessage.headers) {
-        httpRequest.setRequestHeader(name, requestMessage.headers[headerName]);
+        httpRequest.setRequestHeader(name, requestMessage.headers[name]);
       }
     }
   }
@@ -1509,14 +1572,37 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
     return headers;
   }
 
-  _onSend(content, httpRequest, context) {
+  _onSend(requestMessage, httpRequest, context) {
     return new Promise((resolve, reject) => {
-      if (content) {
-        httpRequest.send(content);
-      } else {
-        httpRequest.send();
+      try {
+        httpRequest.timeout = context.client.timeout;
+        if ('timeout' in requestMessage && requestMessage.timeout > 0) {
+          httpRequest.timeout = requestMessage.timeout;
+        }
+        var content = null;
+        if (requestMessage.content) {
+          var contentType = requestMessage.contentType;
+          if (contentType) {
+            contentType = context.client.defaultContentType;
+          }
+          var mediaTypeFormatter = context.client.getMediaTypeFormatter(contentType);
+          if (mediaTypeFormatter) {
+            content = mediaTypeFormatter.write(requestMessage.content);
+          } else {
+            content = requestMessage.content;
+          }
+          requestMessage['Content-Type'] = contentType;
+        }
+        this._setRequestHeaders(requestMessage, httpRequest, context);
+        if (content) {
+          httpRequest.send(content);
+        } else {
+          httpRequest.send();
+        }
+        resolve();
+      } catch (error) {
+        reject(error);
       }
-      resolve();
     });
   }
 
@@ -1550,18 +1636,38 @@ class RestMessageHandler extends _restMessageHandlerBase2.default {
     });
   }
 
-  _onBeforeSend(requestMessage, context) {
+  _onBeforeSend(requestMessage, context, cancellationToken) {
+    if (context.client.messageInterceptors) {
+      var messageInterceptors = context.client.messageInterceptors;
+      var p = Promise.resolve(requestMessage);
+      messageInterceptors.forEach(interceptor => {
+        p.then(message => {
+          return interceptor.beforeSend(message, context, cancellationToken);
+        });
+      });
+      return p;
+    }
     return Promise.resolve(requestMessage);
   }
 
-  _onAfterReceive(responseMessage, context) {
+  _onAfterReceive(responseMessage, context, cancellationToken) {
+    if (context.client.messageInterceptors) {
+      var messageInterceptors = context.client.messageInterceptors;
+      var p = Promise.resolve(responseMessage);
+      messageInterceptors.forEach(interceptor => {
+        p.then(message => {
+          return interceptor.afterReceive(message, context, cancellationToken);
+        });
+      });
+      return p;
+    }
     return Promise.resolve(responseMessage);
   }
 
 }
 exports.default = RestMessageHandler;
 
-},{"cancellation-token":4,"options":7,"rest-client-error":15,"rest-message-handler-base":18,"rest-request-message":21,"rest-response-message":22,"url-builder":25}],20:[function(require,module,exports){
+},{"cancellation-token":5,"options":9,"rest-client-error":17,"rest-message-handler-base":20,"rest-request-message":23,"rest-response-message":24,"url-builder":27}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1588,14 +1694,14 @@ class RestMessageInterceptorBase {
     return Promise.resolve(requestMessage);
   }
 
-  afterSend(responseMessage, context, cancellationToken = _cancellationToken2.default.none) {
+  afterReceive(responseMessage, context, cancellationToken = _cancellationToken2.default.none) {
     return Promise.resolve(responseMessage);
   }
 
 }
 exports.default = RestMessageInterceptorBase;
 
-},{"cancellation-token":4,"options":7}],21:[function(require,module,exports){
+},{"cancellation-token":5,"options":9}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1614,7 +1720,7 @@ class RestRequestMessage {
     this.method = null;
     this.path = null;
     this.queryString = null;
-    this.headers = null;
+    this.headers = {};
     this.accept = null;
     this.content = null;
     this.contentType = null;
@@ -1626,7 +1732,7 @@ class RestRequestMessage {
 }
 exports.default = RestRequestMessage;
 
-},{"options":7}],22:[function(require,module,exports){
+},{"options":9}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1645,7 +1751,7 @@ class RestResponseMessage {
     this.requestMessage = null;
     this.status = null;
     this.statusText = null;
-    this.headers = null;
+    this.headers = {};
     this.content = null;
     this.contentType = null;
     _options2.default.assign(this, options);
@@ -1654,13 +1760,13 @@ class RestResponseMessage {
 }
 exports.default = RestResponseMessage;
 
-},{"options":7}],23:[function(require,module,exports){
+},{"options":9}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryTranslator = exports.QueryFactory = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.RestMessageInterceptorBase = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatterBase = exports.RestMessageHandler = exports.RestMessageHandlerBase = exports.RestMessageContext = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.UrlBuilder = exports.RestClientError = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = undefined;
+exports.QueryTranslator = exports.QueryFactory = exports.Repository = exports.SortDirection = exports.Query = exports.QueryBase = exports.Batch = exports.BasicAuthentication = exports.NoCaching = exports.RestMessageInterceptorBase = exports.JsonMediaTypeFormatter = exports.MediaTypeFormatterBase = exports.RestMessageHandler = exports.RestMessageHandlerBase = exports.RestMessageContext = exports.RestBulkResponseMessage = exports.RestBulkRequestMessage = exports.RestResponseMessage = exports.RestRequestMessage = exports.RestClient = exports.UrlBuilder = exports.RestClientError = exports.CancellationTokenSource = exports.CancellationToken = exports.Options = undefined;
 
 var _options = require('options');
 
@@ -1726,6 +1832,14 @@ var _restMessageInterceptorBase = require('rest-message-interceptor-base');
 
 var _restMessageInterceptorBase2 = _interopRequireDefault(_restMessageInterceptorBase);
 
+var _noCaching = require('no-caching');
+
+var _noCaching2 = _interopRequireDefault(_noCaching);
+
+var _basicAuthentication = require('basic-authentication');
+
+var _basicAuthentication2 = _interopRequireDefault(_basicAuthentication);
+
 var _batch = require('batch');
 
 var _batch2 = _interopRequireDefault(_batch);
@@ -1772,6 +1886,8 @@ exports.RestMessageHandler = _restMessageHandler2.default;
 exports.MediaTypeFormatterBase = _mediaTypeFormatterBase2.default;
 exports.JsonMediaTypeFormatter = _jsonMediaTypeFormatter2.default;
 exports.RestMessageInterceptorBase = _restMessageInterceptorBase2.default;
+exports.NoCaching = _noCaching2.default;
+exports.BasicAuthentication = _basicAuthentication2.default;
 exports.Batch = _batch2.default;
 exports.QueryBase = _queryBase2.default;
 exports.Query = _query2.default;
@@ -1780,7 +1896,7 @@ exports.Repository = _repository2.default;
 exports.QueryFactory = _queryFactory2.default;
 exports.QueryTranslator = _queryTranslator2.default;
 
-},{"batch":2,"cancellation-token":4,"cancellation-token-source":3,"json-media-type-formatter":5,"media-type-formatter-base":6,"options":7,"query":11,"query-base":8,"query-factory":9,"query-translator":10,"repository":12,"rest-bulk-request-message":13,"rest-bulk-response-message":14,"rest-client":16,"rest-client-error":15,"rest-message-context":17,"rest-message-handler":19,"rest-message-handler-base":18,"rest-message-interceptor-base":20,"rest-request-message":21,"rest-response-message":22,"sort-direction":24,"url-builder":25}],24:[function(require,module,exports){
+},{"basic-authentication":1,"batch":3,"cancellation-token":5,"cancellation-token-source":4,"json-media-type-formatter":6,"media-type-formatter-base":7,"no-caching":8,"options":9,"query":13,"query-base":10,"query-factory":11,"query-translator":12,"repository":14,"rest-bulk-request-message":15,"rest-bulk-response-message":16,"rest-client":18,"rest-client-error":17,"rest-message-context":19,"rest-message-handler":21,"rest-message-handler-base":20,"rest-message-interceptor-base":22,"rest-request-message":23,"rest-response-message":24,"sort-direction":26,"url-builder":27}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1792,7 +1908,7 @@ exports.default = SortDirection;
 SortDirection.Asc = 1;
 SortDirection.Desc = -1;
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1847,7 +1963,7 @@ class UrlBuilder {
 }
 exports.default = UrlBuilder;
 
-},{"options":7}]},{},[23])(23)
+},{"options":9}]},{},[25])(25)
 });
 
 
