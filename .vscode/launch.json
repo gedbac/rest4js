@@ -4,10 +4,10 @@
 		"name": "Server",
 		"type": "node",
 		"request": "launch",
-		"program": "${workspaceRoot}/sample/server.js",
+		"program": "${workspaceRoot}/samples/server.js",
 		"stopOnEntry": false,
 		"args": [],
-		"cwd": "${workspaceRoot}/sample",
+		"cwd": "${workspaceRoot}/samples",
 		"env": {
 			"NODE_ENV": "development"
 		}

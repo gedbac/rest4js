@@ -25,61 +25,17 @@
             password: 'pass'
           });
           var cancellationTokenSource = new rest.CancellationTokenSource();
-          // SIMPLE MESSAGE:
-          var requestMessage = new rest.RestRequestMessage({
-            method: 'GET',
-            path: '/api/users',
-            objectType: User
-          });
-          client
-            .send(requestMessage, cancellationTokenSource.token)
-            .then(responseMessage => {
-              console.log("Users has been fetched successfuly");
-            })
-            .catch(reason => {
-              if (cancellationTokenSource.canceled) {
-                console.log(reason.message || reason);
-              } else {
-                console.error(reason.message || reason);
-              }
-            });
-          //cancellationTokenSource.cancelAfter(0);
 
-          // SIMPLE CALL TO REPOSITORY:
-          var usersRepository = new rest.Repository({
-            client: client,
-            path: '/api/users',
-            objectType: User
-          });
-          usersRepository.get(null, cancellationTokenSource.token)
-            .then(users => {
-              console.log("Users has been fetched successfuly");
-            })
-            .catch(reason => {
-              if (cancellationTokenSource.canceled) {
-                console.log(reason.message || reason);
-              } else {
-                console.error(reason.message || reason);
-              }
-            });
-
-          // BULK MESSAGE:
-          // var cancellationTokenSource = new rest.CancellationTokenSource();
-          // var bulkRequestMessage = new rest.RestBulkRequestMessage({
-          //   path: '/api/batch'
+          // Fetch data by building request message manually:
+          // var requestMessage = new rest.RestRequestMessage({
+          //   method: 'GET',
+          //   path: '/api/users',
+          //   objectType: User
           // });
-          // bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
-          //   method: 'GET',
-          //   path: '/api/users/1'
-          // }));
-          // bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
-          //   method: 'GET',
-          //   path: '/api/users'
-          // }));
           // client
-          //   .send(bulkRequestMessage, cancellationTokenSource.token)
-          //   .then(bulkResponseMessage => {
-          //     console.log("Batch has been executed successfuly");
+          //   .send(requestMessage, cancellationTokenSource.token)
+          //   .then(responseMessage => {
+          //     console.log("Users has been fetched successfuly");
           //   })
           //   .catch(reason => {
           //     if (cancellationTokenSource.canceled) {
@@ -88,6 +44,50 @@
           //       console.error(reason.message || reason);
           //     }
           //   });
+          //cancellationTokenSource.cancelAfter(0);
+
+          // Fetch data using repository:
+          // var usersRepository = new rest.Repository({
+          //   client: client,
+          //   path: '/api/users',
+          //   objectType: User
+          // });
+          // usersRepository.get(null, cancellationTokenSource.token)
+          //   .then(users => {
+          //     console.log("Users has been fetched successfuly");
+          //   })
+          //   .catch(reason => {
+          //     if (cancellationTokenSource.canceled) {
+          //       console.log(reason.message || reason);
+          //     } else {
+          //       console.error(reason.message || reason);
+          //     }
+          //   });
+
+          // Fetch batch of data by building bulk message manually:
+          var bulkRequestMessage = new rest.RestBulkRequestMessage({
+            path: '/api/batch'
+          });
+          bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
+            method: 'GET',
+            path: '/api/users/1'
+          }));
+          bulkRequestMessage.requestMessages.push(new rest.RestRequestMessage({
+            method: 'GET',
+            path: '/api/users/1/settings'
+          }));
+          client
+            .send(bulkRequestMessage, cancellationTokenSource.token)
+            .then(bulkResponseMessage => {
+              console.log("Batch has been executed successfuly");
+            })
+            .catch(reason => {
+              if (cancellationTokenSource.canceled) {
+                console.log(reason.message || reason);
+              } else {
+                console.error(reason.message || reason);
+              }
+            });
 
           // Bulk call:
           // var requestMessage1 = new rest.RestRequestMessage();

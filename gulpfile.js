@@ -52,7 +52,7 @@ gulp.task('build', () => {
   .pipe(sourcemaps.init({ loadMaps: true }))
   .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('./dist'))
-  .pipe(gulp.dest('./sample'));
+  .pipe(gulp.dest('./samples'));
 });
 
 gulp.task('build-spec', [ 'build' ], () => {

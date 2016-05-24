@@ -16,8 +16,9 @@ Fetch data from your RESTfull web service in the easy way.
       path: '/api/users'
     });
 
+    var cancellationTokenSource = new rest.CancellationTokenSource();
     userRepository
-      .get()
+      .get(cancellationTokenSource.token)
       .then(users => {
         console.log(users);
       })
@@ -32,6 +33,7 @@ Client request
     GET /api/users HTTP/1.1
     Host: localhost:8080
     Accept: application/json
+    Cache-Control:no-cache
     X-Requested-With: XMLHttpRequest
 
 Server response
@@ -54,16 +56,28 @@ Server response
 
 ## CRUD
 
-### repository.get(parameters, cancellationToken): Promise
+### repository.get
 
 You can easily fetch data by given parameters.
 
+    repository.get(parameters[, cancellationToken])
+
+**Parameters**
+
+_parameters_ - parameters
+
+_cancellationToken_ - cancellation token
+
+**Returns**
+
+Promise
+
 The following example shows a regular fetch by id:
 
-    usersRepository.get(2)
+    usersRepository.get(id, cancellationTokenSource.token)
       .then(users => {
         console.log(users);
-      })
+      }
       .catch(reason => {
         console.log(reason.message || reason);
       });
@@ -77,34 +91,13 @@ Sample output from the example:
         }
     ]
 
-### repository.save(entity, callback)
+### repository.save(value[, cancellationToken])
 
-    repository.save(entity function (e) {
-      if (!e.error && !e.cancelled) {
-        id = e.id;
-      }
-    });
+### repository.update(id, value[, cancellationToken])
 
-### repository.update(id, entity, callback)
+### repository.patch(id, value[, cancellationToken])
 
-    repository.update(id, entity, function (e) {
-      if (!e.error && !e.cancelled) {
-      }
-    });
-
-### repository.patch(id, callback)
-
-    repository.patch(id, entity, function (e) {
-      if (!e.error && !e.cancelled) {
-      }
-    });
-
-### repository.del(id, callback)
-
-    repository.get(id, function (e) {
-      if (!e.error && !e.cancelled) {
-      }
-    });
+### repository.del(id[, cancellationToken])
 
 ## Queries
 
@@ -126,7 +119,7 @@ There is an option to build queries.
         .then(() => {
 
         })
-        .catch(ex => {
+        .catch(reason => {
 
         });
 
@@ -163,7 +156,9 @@ Now you are ready to go.
     repository
       .get(id, cancellationTokenSource.token)
       .then(() => {})
-      .catch(ex => {});
+      .catch(reason => {
+
+      });
 
     cancellationTokenSource.cancelAfer(200);
 
@@ -178,7 +173,11 @@ Now you are ready to go.
 
 ## Interceptions
 
-## ??
+## Authentication
+
+## Caching
+
+## Customization
 
 If you are not confortable with repository pattern or it restricts you to much, you can
 always use lower level API, which allows to create request manually. See an example
